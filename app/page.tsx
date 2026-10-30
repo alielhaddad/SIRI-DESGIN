@@ -109,7 +109,7 @@ export default function Home() {
       </form></div></section>
 
     <footer id="contact"><div className="footer-top"><div className="footer-brand"><Image src="/logo.png" alt="Siri Designs" width={110} height={98}/><h3>Siri <em>Designs</em></h3><p>التفاصيل تصنع الفرق.</p></div><div><h4>تصفح</h4><a href="#about">عن الشركة</a><a href="#services">خدماتنا</a><a href="#projects">سابقة الأعمال</a><a href="#clients">عملاؤنا</a></div><div><h4>تواصل معنا</h4>{settings.phone && <a href={`tel:${settings.phone.replace(/[^+\d]/g, '')}`}>{settings.phone}</a>}{settings.email && <a href={`mailto:${settings.email}`}>{settings.email}</a>}<p>{settings.address || defaults.address}</p></div><div><h4>تابعنا</h4>{socialLinks.map(({ name, url }) => <a key={name} href={url} target="_blank" rel="noreferrer">{name} ↗</a>)}{whatsapp && <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noreferrer">WhatsApp ↗</a>}{!socialLinks.length && !whatsapp && <p>أضف روابط التواصل من لوحة التحكم</p>}</div></div>
-      <div className="footer-bottom"><span>© {new Date().getFullYear()} Siri Designs. جميع الحقوق محفوظة.</span><a href="/admin">دخول الإدارة</a><span>DESIGNED WITH CARE</span></div>
+      <div className="footer-bottom"><span>© {new Date().getFullYear()} Siri Designs. جميع الحقوق محفوظة.</span><a href="/admin">دخول الإدارة</a><span>Designed by Tech Relation</span></div>
     </footer>
     {whatsapp && <a className="whatsapp-float" href={`https://wa.me/${whatsapp}`} target="_blank" rel="noreferrer" aria-label="تواصل معنا عبر واتساب">واتساب <b>↗</b></a>}
   </main>;
