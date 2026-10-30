@@ -13,9 +13,9 @@
 
 ## ثانيًا: النشر على Vercel من غير GitHub
 
-1. فك ضغط `siri-designs-site.zip` في مجلد على جهازك.
+1. فك ضغط ملف `SiriDesigns-Vercel-ROOT.zip`. مهم: افتح المجلد الذي يظهر فيه `package.json` ومجلد `app` مباشرة؛ لا تدخل إلى مجلد فرعي آخر.
 2. ثبّت Node.js إصدار 22 إن لم يكن موجودًا.
-3. افتح المجلد المستخرج، ثم اضغط على شريط العنوان في File Explorer واكتب `powershell` واضغط Enter.
+3. داخل هذا المجلد، اضغط على شريط العنوان في File Explorer واكتب `powershell` واضغط Enter.
 4. في PowerShell نفّذ:
 
    ```powershell
@@ -39,6 +39,12 @@
    ```
 
    أو أعد النشر من صفحة Deployments في Vercel بعد حفظ متغيرات البيئة.
+
+## لو رفعت المشروع إلى GitHub بالفعل وظهر خطأ عدم وجود app أو pages
+
+سبب الخطأ غالبًا أن ملفات المشروع موجودة داخل مجلد فرعي اسمه `siri-designs-site` بينما Vercel يبحث في جذر المستودع. افتح **Vercel → Project → Settings → Build and Deployment (أو General) → Root Directory → Edit**، واختر `siri-designs-site` ثم احفظ وأعد النشر. أو انقل محتويات المجلد إلى جذر المستودع بحيث يصبح `app/` و`package.json` في المستوى الأول. لا تضع `app` داخل مجلد آخر.
+
+في إعدادات البناء استخدم Framework Preset: **Next.js**، واترك Build Command وOutput Directory على الإعدادات الافتراضية.
 
 ## ثالثًا: إدارة الموقع
 
