@@ -13,13 +13,32 @@ const defaults: Settings = {
   about: 'نحوّل أفكارك إلى مساحات متوازنة تجمع بين الجمال والراحة والوظيفة. نهتم بكل تفصيلة، من فهم احتياجك ورسم الفكرة إلى اختيار الخامات ومتابعة التنفيذ.',
 };
 
-const heroImage = 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=2200&q=88';
+const heroImage = '/projects/dnp-storefront.webp';
 const services = [
-  { no: '01', title: 'التشطيبات المتكاملة', desc: 'تنفيذ متكامل بمراحل واضحة، وخامات مختارة بعناية، وجودة تلاحظها في كل تفصيلة.', image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=82', tag: 'FINISHING' },
-  { no: '02', title: 'التصميم الداخلي', desc: 'تخطيط ذكي للمساحات والألوان والأثاث يعكس شخصيتك ويخدم أسلوب حياتك.', image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=82', tag: 'INTERIOR DESIGN' },
-  { no: '03', title: 'الديكورات والإضاءة', desc: 'تفاصيل بصرية وإضاءة مدروسة تمنح كل مساحة إحساسها وهويتها الخاصة.', image: 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=900&q=82', tag: 'DECOR & LIGHTING' },
-  { no: '04', title: 'تجديد وتطوير المساحات', desc: 'نمنح المساحات القائمة بداية جديدة باستغلال أفضل ونتيجة أكثر أناقة وراحة.', image: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=900&q=82', tag: 'RENOVATION' },
+  { no: '01', title: 'التشطيبات المتكاملة', desc: 'تنفيذ متكامل بمراحل واضحة، وخامات مختارة بعناية، وجودة تلاحظها في كل تفصيلة.', image: '/projects/fitout-display-wide.webp', tag: 'FINISHING' },
+  { no: '02', title: 'التصميم الداخلي', desc: 'تخطيط ذكي للمساحات والألوان والأثاث يعكس شخصيتك ويخدم أسلوب حياتك.', image: '/projects/dnp-interior.webp', tag: 'INTERIOR DESIGN' },
+  { no: '03', title: 'الديكورات والإضاءة', desc: 'تفاصيل بصرية وإضاءة مدروسة تمنح كل مساحة إحساسها وهويتها الخاصة.', image: '/projects/alura-arches.webp', tag: 'DECOR & LIGHTING' },
+  { no: '04', title: 'تجديد وتطوير المساحات', desc: 'نمنح المساحات القائمة بداية جديدة باستغلال أفضل ونتيجة أكثر أناقة وراحة.', image: '/projects/site-counter-finish.webp', tag: 'RENOVATION' },
 ];
+
+// صور حقيقية من المشروعات التي أرسلها العميل. تظل مشروعات لوحة الإدارة ظاهرة بعدها.
+const featuredProjects: Project[] = [
+  { id: 'siri-real-01', title: 'DNP Nutrition', category: 'واجهة وتجهيز متجر تجاري', image_url: '/projects/dnp-storefront.webp', description: 'واجهة المشروع والتفاصيل الخارجية.' },
+  { id: 'siri-real-02', title: 'DNP Nutrition', category: 'التصميم الداخلي', image_url: '/projects/dnp-interior.webp', description: 'منطقة الاستقبال والعرض داخل المشروع.' },
+  { id: 'siri-real-03', title: 'DNP Nutrition', category: 'وحدات العرض', image_url: '/projects/dnp-showroom-angle.webp', description: 'تفاصيل توزيع المساحة ووحدات العرض.' },
+  { id: 'siri-real-04', title: 'ALURA Boutique', category: 'ديكورات وإضاءة', image_url: '/projects/alura-arches.webp', description: 'تفاصيل الأقواس المعدنية والإضاءة داخل المتجر.' },
+  { id: 'siri-real-05', title: 'مشروع ALURA', category: 'من مراحل التنفيذ', image_url: '/projects/site-ceiling-install.webp', description: 'فريق العمل أثناء تنفيذ وتجهيز المساحة.' },
+  { id: 'siri-real-06', title: 'EMOTIONS', category: 'المدخل والواجهة', image_url: '/projects/emotions-entry.webp', description: 'تفاصيل المدخل والتشطيبات المحيطة به.' },
+  { id: 'siri-real-07', title: 'EMOTIONS', category: 'واجهة المشروع', image_url: '/projects/emotions-front-wide.webp', description: 'واجهة العرض والإضاءة النهائية.' },
+  { id: 'siri-real-08', title: 'EMOTIONS', category: 'تفاصيل الواجهة', image_url: '/projects/emotions-front-detail.webp', description: 'لقطة أقرب لتفاصيل الواجهة ووحدات العرض.' },
+  { id: 'siri-real-09', title: 'تجهيز متجر تجاري', category: 'وحدات العرض والتخزين', image_url: '/projects/fitout-wall-shelves.webp', description: 'وحدات عرض حائطية بتقسيمات عملية.' },
+  { id: 'siri-real-10', title: 'تجهيز متجر تجاري', category: 'توزيع المساحة', image_url: '/projects/fitout-display-wide.webp', description: 'توزيع وحدات العرض داخل المساحة.' },
+  { id: 'siri-real-11', title: 'تجهيز متجر تجاري', category: 'تفاصيل داخلية', image_url: '/projects/fitout-display-side.webp', description: 'تفاصيل الأرفف ووحدات العرض.' },
+  { id: 'siri-real-12', title: 'تجهيز متجر تجاري', category: 'أعمال الإضاءة', image_url: '/projects/fitout-lighting-progress.webp', description: 'تفاصيل الإضاءة وتجهيزات السقف.' },
+  { id: 'siri-real-13', title: 'من مراحل التنفيذ', category: 'تركيب الواجهات الزجاجية', image_url: '/projects/site-glass-install.webp', description: 'أعمال التركيب بالموقع بواسطة فريق Siri Designs.' },
+  { id: 'siri-real-14', title: 'من مراحل التنفيذ', category: 'تشطيب وحدات العرض', image_url: '/projects/site-counter-finish.webp', description: 'أعمال التشطيب النهائي لوحدات العرض.' },
+];
+
 
 export default function Home() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -96,6 +115,7 @@ export default function Home() {
   if (settings.tiktok) socialLinks.push({ name: 'TikTok', url: settings.tiktok, short: 'TK' });
   if (settings.linkedin) socialLinks.push({ name: 'LinkedIn', url: settings.linkedin, short: 'IN' });
   const navItems = [['#about', 'عن الشركة'], ['#services', 'خدماتنا'], ['#projects', 'أعمالنا'], ['#clients', 'عملاؤنا'], ['#contact', 'تواصل معنا']];
+  const visibleProjects = [...featuredProjects, ...projects];
 
   return <main className="sd-site">
     <header className="sd-nav">
@@ -160,8 +180,8 @@ export default function Home() {
       <div className="sd-container">
         <div className="sd-section-top sd-reveal"><span className="sd-index">03 / SELECTED WORK</span><span className="sd-section-aside">سابقة الأعمال</span></div>
         <div className="sd-heading-row sd-reveal"><h2>أعمالنا بتحكي<br/><em>عنّا.</em></h2><p>كل مشروع بداية جديدة، وكل تفصيلة فيه جزء من حكاية تستحق تتشاف.</p></div>
-        {projects.length ? <div className="sd-project-grid">{projects.map((p, i) => <article className={`sd-project-card sd-reveal sd-project-${i % 3}`} key={p.id}>
-          <div className="sd-project-image">{p.image_url ? <img src={p.image_url} alt={p.title} loading="lazy"/> : <div className="sd-project-empty-image">SIRI / PROJECT</div>}<span className="sd-project-count">{String(i + 1).padStart(2, '0')}</span></div>
+        {visibleProjects.length ? <div className="sd-project-grid">{visibleProjects.map((p, i) => <article className={`sd-project-card sd-reveal sd-project-${i % 3}`} key={p.id}>
+          <div className="sd-project-image">{p.image_url ? <img src={p.image_url} alt={`${p.title} — ${p.category || 'مشروع'}`} loading={i < 3 ? 'eager' : 'lazy'} decoding="async"/> : <div className="sd-project-empty-image">SIRI / PROJECT</div>}<span className="sd-project-count">{String(i + 1).padStart(2, '0')}</span></div>
           <div className="sd-project-info"><div><span>{p.category || 'مشروع'}</span><h3>{p.title}</h3>{p.location && <small>{p.location}</small>}</div><span className="sd-project-arrow">↙</span></div>
           {p.description && <p className="sd-project-desc">{p.description}</p>}
         </article>)}</div> : <div className="sd-project-empty sd-reveal"><span className="sd-empty-symbol">✳</span><div><b>هنا تبدأ حكاياتنا القادمة.</b><p>سيتم عرض المشروعات التي نضيفها من لوحة التحكم في هذا القسم تلقائيًا.</p></div><a href="#request">كن مشروعنا القادم <span>↙</span></a></div>}
