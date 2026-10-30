@@ -6,12 +6,23 @@ import { supabase } from '@/lib/supabase';
 
 type Project = { id: string; title: string; category?: string; location?: string; image_url?: string; description?: string };
 type Client = { id: string; name: string; logo_url?: string; note?: string };
-type Settings = { phone?: string; whatsapp?: string; email?: string; address?: string; facebook?: string; instagram?: string; tiktok?: string; linkedin?: string; about?: string };
+type Settings = { phone?: string; phones?: string[]; whatsapp?: string; email?: string; address?: string; location_url?: string; facebook?: string; instagram?: string; tiktok?: string; linkedin?: string; about?: string };
 
 const defaults: Settings = {
   address: 'Cairo, Egypt',
   about: 'We turn your ideas into balanced spaces where beauty, comfort, and function come together. From understanding your needs and shaping the concept to selecting materials and overseeing execution, every detail matters.',
 };
+
+function safeExternalUrl(value?: string) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  try {
+    const parsed = new URL(raw);
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:' ? parsed.toString() : '';
+  } catch {
+    return '';
+  }
+}
 
 const heroImage = '/projects/dnp-storefront.webp';
 const services = [
@@ -28,6 +39,7 @@ export default function Home() {
   const [clients, setClients] = useState<Client[]>([]);
   const [settings, setSettings] = useState<Settings>(defaults);
   const [sent, setSent] = useState(false);
+  const [emailWarning, setEmailWarning] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -91,7 +103,7 @@ export default function Home() {
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formEl = e.currentTarget;
-    setBusy(true); setError(''); setSent(false);
+    setBusy(true); setError(''); setSent(false); setEmailWarning('');
     if (!supabase) { setError('The inquiry form is currently unavailable. Please contact us by phone or WhatsApp.'); setBusy(false); return; }
     const form = new FormData(formEl);
     const payload = {
@@ -100,14 +112,62 @@ export default function Home() {
       budget: String(form.get('budget') || ''), details: String(form.get('details') || '').trim(), status: 'new',
     };
     const { error: insertError } = await supabase.from('customer_requests').insert(payload);
-    if (insertError) setError('We could not submit your request. Please try again or contact us directly.');
-    else { setSent(true); formEl.reset(); }
+    if (insertError) {
+      setError('We could not submit your request. Please try again or contact us directly.');
+    } else {
+      // Save the inquiry first. Email notification is a separate step so an email outage
+      // never causes a successfully saved customer request to be lost.
+      setSent(true);
+      formEl.reset();
+
+      const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+      const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+      const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+      if (serviceId && templateId && publicKey) {
+        try {
+          const emailResponse = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              service_id: serviceId,
+              template_id: templateId,
+              user_id: publicKey,
+              template_params: {
+                name: payload.name,
+                phone: payload.phone,
+                email: payload.email || 'Not provided',
+                service: payload.service,
+                budget: payload.budget || 'Not specified',
+                details: payload.details || 'No additional details',
+                submitted_at: new Date().toLocaleString('en-GB'),
+              },
+            }),
+          });
+          if (!emailResponse.ok) {
+            const providerMessage = await emailResponse.text().catch(() => '');
+            console.error('EmailJS notification failed:', emailResponse.status, providerMessage);
+            setEmailWarning('Your request was saved, but the email notification could not be sent. The request is still available in the admin dashboard.');
+          }
+        } catch (emailError) {
+          console.error('EmailJS notification request failed:', emailError);
+          setEmailWarning('Your request was saved, but the email notification could not be sent. The request is still available in the admin dashboard.');
+        }
+      } else {
+        setEmailWarning('Your request was saved. Email notifications are not configured yet.');
+      }
+    }
     setBusy(false);
   }
 
   const aboutText = settings.about && !/[\u0600-\u06FF]/.test(settings.about) ? settings.about : defaults.about;
   const addressText = settings.address && !/[\u0600-\u06FF]/.test(settings.address) ? settings.address : defaults.address;
   const whatsapp = settings.whatsapp?.replace(/\D/g, '');
+  // Prefer the new multiple-number setting, while keeping compatibility with the old single phone field.
+  const companyPhones = (Array.isArray(settings.phones) ? settings.phones : [])
+    .map((phone) => String(phone || '').trim())
+    .filter(Boolean);
+  if (!companyPhones.length && settings.phone?.trim()) companyPhones.push(settings.phone.trim());
+  const companyLocationUrl = safeExternalUrl(settings.location_url);
   const socialLinks: { name: string; url: string; short: string }[] = [];
   if (settings.facebook) socialLinks.push({ name: 'Facebook', url: settings.facebook, short: 'FB' });
   if (settings.instagram) socialLinks.push({ name: 'Instagram', url: settings.instagram, short: 'IG' });
@@ -201,7 +261,13 @@ export default function Home() {
         <div className="sd-section-top sd-reveal"><span className="sd-index">05 / START A PROJECT</span><span className="sd-section-aside">Start a Project</span></div>
         <div className="sd-contact-grid">
           <div className="sd-contact-copy sd-reveal"><span className="sd-mini-label">LET'S CREATE SOMETHING BEAUTIFUL</span><h2>Have an idea?<br/><em>We are ready.</em></h2><p>Tell us about the space you have in mind. Share a few project details and our team will get in touch to help you take the first step.</p>
-            <div className="sd-direct-contact"><span>Direct Contact</span>{settings.phone ? <a href={`tel:${settings.phone.replace(/[^+\d]/g, '')}`}>{settings.phone}</a> : <b>Add your phone number in the admin dashboard</b>}{settings.email && <a href={`mailto:${settings.email}`}>{settings.email}</a>}{addressText && <small>{addressText}</small>}</div>
+            <div className="sd-direct-contact">
+              <span>Direct Contact</span>
+              {companyPhones.length ? companyPhones.map((phone, index) => <a key={`${phone}-${index}`} href={`tel:${phone.replace(/[^+\d]/g, '')}`}>{phone}</a>) : <b>Add your phone number in the admin dashboard</b>}
+              {settings.email && <a href={`mailto:${settings.email}`}>{settings.email}</a>}
+              {addressText && <small>{addressText}</small>}
+              {companyLocationUrl && <a href={companyLocationUrl} target="_blank" rel="noopener noreferrer">View Company Location ↗</a>}
+            </div>
           </div>
           <form className="sd-form sd-reveal" onSubmit={submit}>
             <div className="sd-form-head"><div><span>PROJECT INQUIRY</span><h3>Tell Us About Your Project</h3></div><b>01 — 05</b></div>
@@ -209,7 +275,7 @@ export default function Home() {
             <div className="sd-form-row"><label>Email Address<input name="email" type="email" maxLength={150} placeholder="name@example.com"/></label><label>Service Required *<select name="service" required defaultValue=""><option value="" disabled>Select a service</option><option>Complete Fit-Out</option><option>Interior Design</option><option>Decor & Lighting</option><option>Renovation & Upgrades</option><option>Other</option></select></label></div>
             <label>Estimated Budget<select name="budget" defaultValue=""><option value="">Optional</option><option>Under EGP 100,000</option><option>EGP 100,000 – 300,000</option><option>EGP 300,000 – 700,000</option><option>Over EGP 700,000</option><option>Still to be determined</option></select></label>
             <label>Project Details<textarea name="details" rows={3} maxLength={3000} placeholder="Space type, location, and anything else you would like to share..."/></label>
-            {error && <p className="sd-form-error" role="alert">{error}</p>}{sent && <p className="sd-form-success" role="status">Your request has been submitted successfully. Thank you for choosing Siri Designs. Our team will contact you soon.</p>}
+            {error && <p className="sd-form-error" role="alert">{error}</p>}{sent && <p className="sd-form-success" role="status">Your request has been submitted successfully. Thank you for choosing Siri Designs. Our team will contact you soon.</p>}{emailWarning && <p className="sd-form-error" role="status">{emailWarning}</p>}
             <button className="sd-submit" disabled={busy}>{busy ? 'Submitting your request...' : 'Submit Project Inquiry'} <span>↙</span></button><small className="sd-privacy">Your information is secure and will only be used to follow up on your inquiry.</small>
           </form>
         </div>
@@ -219,7 +285,7 @@ export default function Home() {
     <footer className="sd-footer" id="contact"><div className="sd-container"><div className="sd-footer-main">
       <div className="sd-footer-brand"><Image src="/logo.png" alt="Siri Designs" width={100} height={88}/><b>Siri Designs</b><p>We design spaces that feel like you.</p></div>
       <div><h4>Explore</h4><a href="#about">About</a><a href="#services">Services</a><a href="#projects">Selected Work</a><a href="#clients">Clients</a></div>
-      <div><h4>Contact</h4>{settings.phone && <a href={`tel:${settings.phone.replace(/[^+\d]/g, '')}`}>{settings.phone}</a>}{settings.email && <a href={`mailto:${settings.email}`}>{settings.email}</a>}<p>{addressText}</p></div>
+      <div><h4>Contact</h4>{companyPhones.map((phone, index) => <a key={`${phone}-${index}`} href={`tel:${phone.replace(/[^+\d]/g, '')}`}>{phone}</a>)}{settings.email && <a href={`mailto:${settings.email}`}>{settings.email}</a>}<p>{addressText}</p>{companyLocationUrl && <a href={companyLocationUrl} target="_blank" rel="noopener noreferrer">View Location ↗</a>}</div>
       <div><h4>Follow Us</h4>{socialLinks.map(({ name, url, short }) => <a className="sd-social-link" key={name} href={url} target="_blank" rel="noreferrer"><span>{short}</span>{name} ↗</a>)}{whatsapp && <a className="sd-social-link" href={`https://wa.me/${whatsapp}`} target="_blank" rel="noreferrer"><span>WA</span>WhatsApp ↗</a>}{!socialLinks.length && !whatsapp && <p>Add social links in the admin dashboard</p>}</div>
     </div><div className="sd-footer-bottom"><span>© {new Date().getFullYear()} Siri Designs. All rights reserved.</span><span>Designed by <b>Tech Relation</b></span></div></div></footer>
     {whatsapp && <a className="sd-whatsapp" href={`https://wa.me/${whatsapp}`} target="_blank" rel="noreferrer" aria-label="Contact us on WhatsApp"><span>WhatsApp</span><b>↗</b></a>}

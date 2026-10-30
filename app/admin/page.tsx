@@ -7,10 +7,10 @@ import { supabase } from '@/lib/supabase';
 type Project = { id: string; title: string; category: string; location: string; image_url: string; description: string; published: boolean };
 type Client = { id: string; name: string; logo_url: string; note: string; active: boolean };
 type Lead = { id: string; name: string; phone: string; email: string; service: string; budget: string; details: string; status: string; created_at: string };
-type Settings = { phone: string; whatsapp: string; email: string; address: string; facebook: string; instagram: string; tiktok: string; linkedin: string; about: string };
+type Settings = { phone: string; phones: string[]; whatsapp: string; email: string; address: string; location_url: string; facebook: string; instagram: string; tiktok: string; linkedin: string; about: string };
 const blankProject: Omit<Project, 'id'> = { title: '', category: 'Complete Fit-Out', location: '', image_url: '', description: '', published: true };
 const blankClient: Omit<Client, 'id'> = { name: '', logo_url: '', note: '', active: true };
-const blankSettings: Settings = { phone: '', whatsapp: '', email: '', address: '', facebook: '', instagram: '', tiktok: '', linkedin: '', about: '' };
+const blankSettings: Settings = { phone: '', phones: [''], whatsapp: '', email: '', address: '', location_url: '', facebook: '', instagram: '', tiktok: '', linkedin: '', about: '' };
 
 // Accept both public-folder paths (e.g. /projects/photo.webp) and full image URLs.
 function normalizeImagePath(value: string) {
@@ -53,7 +53,14 @@ export default function Admin() {
     ]);
     if (p.error || l.error || c.error) setError('Some data could not be loaded. Make sure the latest supabase-schema.sql has been applied.');
     setProjects((p.data || []) as Project[]); setLeads((l.data || []) as Lead[]); setClients((c.data || []) as Client[]);
-    if (s.data?.value) setSettings({ ...blankSettings, ...s.data.value });
+    if (s.data?.value) {
+      const stored = s.data.value as Partial<Settings> & { phone?: string };
+      // Migrate the old single phone field into the new list without losing existing contact data.
+      const storedPhones = Array.isArray(stored.phones)
+        ? stored.phones.map((value) => String(value || ''))
+        : stored.phone ? [stored.phone] : [''];
+      setSettings({ ...blankSettings, ...stored, phones: storedPhones.length ? storedPhones : [''] });
+    }
   }
 
   async function login(e: FormEvent<HTMLFormElement>) {
@@ -112,8 +119,25 @@ export default function Admin() {
 
   async function saveSettings(e: FormEvent<HTMLFormElement>) {
     e.preventDefault(); if (!supabase) return; setSaving(true); setError('');
-    const { error: saveError } = await supabase.from('site_settings').upsert({ id: 'main', value: settings });
-    setSaving(false); if (saveError) setError('Could not save settings.'); else setNotice('Company details and social links saved.');
+    const rawLocation = String(settings.location_url || '').trim();
+    let locationUrl = '';
+    if (rawLocation) {
+      try {
+        const parsed = new URL(rawLocation);
+        if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') throw new Error('Invalid URL protocol');
+        locationUrl = parsed.toString();
+      } catch {
+        setSaving(false);
+        setError('Please enter a valid full map link starting with https://');
+        return;
+      }
+    }
+    const phones = (settings.phones || []).map((phone) => String(phone || '').trim()).filter(Boolean);
+    const settingsToSave = { ...settings, phones, phone: phones[0] || '', location_url: locationUrl };
+    const { error: saveError } = await supabase.from('site_settings').upsert({ id: 'main', value: settingsToSave });
+    setSaving(false);
+    if (saveError) setError('Could not save settings.');
+    else { setSettings({ ...settingsToSave, phones: phones.length ? phones : [''] }); setNotice('Company contact details and social links saved.'); }
   }
 
   function displayService(value: string) {
@@ -232,6 +256,20 @@ export default function Admin() {
     {tab === 'clients' && <div className="dash-two"><div className="dash-panel"><div className="panel-head"><h2>{client.id ? 'Edit Client' : 'Add Client'}</h2><button type="button" onClick={() => setClient(blankClient)}>+ New</button></div><form className="dash-form" onSubmit={saveClient}><label>Client or Company Name *<input required value={client.name} onChange={e => setClient({ ...client, name: e.target.value })}/></label><label>Client Logo<input type="file" accept="image/*" onChange={e => void uploadImage(e, 'client')}/><small className="field-help">Optional. Maximum size: 6 MB.</small></label>{client.logo_url && <img className="upload-preview client-preview" src={normalizeImagePath(client.logo_url)} alt="Logo preview"/>}<label>Logo Path or URL<input type="text" inputMode="url" value={client.logo_url} onChange={e => setClient({ ...client, logo_url: e.target.value })} placeholder="/clients/logo.webp or https://..."/></label><label>Short Note<input value={client.note} onChange={e => setClient({ ...client, note: e.target.value })}/></label><label className="check-label"><input type="checkbox" checked={!!client.active} onChange={e => setClient({ ...client, active: e.target.checked })}/> Show client on website</label><button className="button primary submit" disabled={saving}>{saving ? 'Saving...' : 'Save Client'}</button></form></div>
       <div className="dash-panel"><div className="panel-head"><h2>Clients ({clients.length})</h2></div>{!clients.length ? <p className="empty-admin">No clients have been added yet.</p> : clients.map(c => <div className="project-admin-row" key={c.id}>{c.logo_url && <img src={c.logo_url} alt=""/>}<div><b>{c.name}</b><small>{c.active ? 'Visible on website' : 'Hidden from website'}</small></div><button onClick={() => { setClient(c); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Edit</button><button className="danger" onClick={() => void deleteClient(c.id)}>Delete</button></div>)}</div></div>}
 
-    {tab === 'settings' && <form className="dash-panel settings-form" onSubmit={saveSettings}><h2>Company & Contact Details</h2><p>Changes made here will appear on the website after saving.</p><div className="settings-grid">{([['phone', 'Phone Number'], ['whatsapp', 'WhatsApp Number with Country Code'], ['email', 'Email Address'], ['address', 'Address'], ['facebook', 'Facebook URL'], ['instagram', 'Instagram URL'], ['tiktok', 'TikTok URL'], ['linkedin', 'LinkedIn URL']] as const).map(([key, label]) => <label key={key}>{label}<input value={settings[key] || ''} onChange={e => setSettings({ ...settings, [key]: e.target.value })} placeholder={key === 'whatsapp' ? '201xxxxxxxxx' : key === 'phone' ? '01xxxxxxxxx' : ''}/></label>)}</div><label>About the Company<textarea rows={5} value={settings.about || ''} onChange={e => setSettings({ ...settings, about: e.target.value })}/></label><button className="button primary" disabled={saving}>{saving ? 'Saving...' : 'Save Company Details'}</button></form>}
+    {tab === 'settings' && <form className="dash-panel settings-form" onSubmit={saveSettings}>
+      <h2>Company & Contact Details</h2><p>Changes made here will appear on the website after saving.</p>
+      <div className="settings-phone-manager" style={{ marginTop: 22, marginBottom: 18 }}>
+        <label>Company Phone Numbers</label>
+        {(settings.phones?.length ? settings.phones : ['']).map((phone, index) => <div key={index} style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: 10, alignItems: 'center', marginBottom: 10 }}>
+          <input type="tel" value={phone} maxLength={30} placeholder="+20 1X XXX XXXX" aria-label={`Company phone number ${index + 1}`} onChange={e => setSettings(old => ({ ...old, phones: (old.phones?.length ? old.phones : ['']).map((value, i) => i === index ? e.target.value : value) }))}/>
+          <button type="button" aria-label={`Remove phone number ${index + 1}`} disabled={(settings.phones?.length || 1) <= 1} onClick={() => setSettings(old => { const next = (old.phones || ['']).filter((_, i) => i !== index); return { ...old, phones: next.length ? next : [''] }; })} style={{ border: '1px solid #e2caca', background: '#fff8f7', color: '#a13d3d', padding: '10px 13px', cursor: 'pointer', fontSize: 12 }}>Remove</button>
+        </div>)}
+        <button type="button" onClick={() => setSettings(old => ({ ...old, phones: [...(old.phones || []), ''] }))} style={{ border: '1px solid #b9d4ce', background: '#f0f7f4', color: '#087e83', padding: '10px 14px', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>+ Add Another Phone Number</button>
+        <small className="field-help" style={{ display: 'block', marginTop: 8 }}>All saved numbers will appear in the Contact section and website footer. The first number is kept as the primary number for compatibility.</small>
+      </div>
+      <div className="settings-grid">{([['whatsapp', 'WhatsApp Number with Country Code'], ['email', 'Email Address'], ['address', 'Office Address'], ['location_url', 'Google Maps Location Link'], ['facebook', 'Facebook URL'], ['instagram', 'Instagram URL'], ['tiktok', 'TikTok URL'], ['linkedin', 'LinkedIn URL']] as const).map(([key, label]) => <label key={key}>{label}<input type={key === 'location_url' ? 'url' : 'text'} value={settings[key] || ''} onChange={e => setSettings({ ...settings, [key]: e.target.value })} placeholder={key === 'whatsapp' ? '201xxxxxxxxx' : key === 'location_url' ? 'https://maps.app.goo.gl/...' : ''}/>{key === 'location_url' && <small className="field-help">Paste the Google Maps share link for your office location.</small>}</label>)}</div>
+      <label>About the Company<textarea rows={5} value={settings.about || ''} onChange={e => setSettings({ ...settings, about: e.target.value })}/></label>
+      <button className="button primary" disabled={saving}>{saving ? 'Saving...' : 'Save Company Details'}</button>
+    </form>}
   </section></main>;
 }
