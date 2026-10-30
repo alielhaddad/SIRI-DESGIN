@@ -24,6 +24,7 @@ const services = [
 
 export default function Home() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [portfolioLoadError, setPortfolioLoadError] = useState('');
   const [clients, setClients] = useState<Client[]>([]);
   const [settings, setSettings] = useState<Settings>(defaults);
   const [sent, setSent] = useState(false);
@@ -36,28 +37,35 @@ export default function Home() {
     const updateNav = () => nav?.classList.toggle('sd-scrolled', window.scrollY > 24);
     updateNav();
     window.addEventListener('scroll', updateNav, { passive: true });
-
-    const targets = document.querySelectorAll<HTMLElement>('.sd-reveal');
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduceMotion || !('IntersectionObserver' in window)) {
-      targets.forEach((el) => el.classList.add('sd-visible'));
-    } else {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            (entry.target as HTMLElement).classList.add('sd-visible');
-            observer.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.12, rootMargin: '0px 0px -35px 0px' });
-      targets.forEach((el) => observer.observe(el));
-      return () => { observer.disconnect(); window.removeEventListener('scroll', updateNav); };
-    }
     return () => window.removeEventListener('scroll', updateNav);
   }, []);
 
+  // Re-observe reveal elements whenever Supabase adds project/client cards.
+  // Without this effect, dynamically-loaded cards keep opacity: 0 forever.
   useEffect(() => {
-    if (!supabase) return;
+    const targets = document.querySelectorAll<HTMLElement>('.sd-reveal:not(.sd-visible)');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion || !('IntersectionObserver' in window)) {
+      targets.forEach((el) => el.classList.add('sd-visible'));
+      return;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          (entry.target as HTMLElement).classList.add('sd-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -25px 0px' });
+    targets.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [projects, clients]);
+
+  useEffect(() => {
+    if (!supabase) {
+      setPortfolioLoadError('الموقع غير متصل بقاعدة البيانات. راجع إعدادات Supabase في Vercel.');
+      return;
+    }
     let alive = true;
     (async () => {
       const [p, c, s] = await Promise.all([
@@ -66,7 +74,14 @@ export default function Home() {
         supabase.from('site_settings').select('value').eq('id', 'main').maybeSingle(),
       ]);
       if (!alive) return;
-      if (p.data) setProjects(p.data as Project[]);
+      if (p.error) {
+        console.error('Siri Designs portfolio query failed:', p.error);
+        setProjects([]);
+        setPortfolioLoadError('تعذر تحميل سابقة الأعمال من قاعدة البيانات. تأكد من صلاحية القراءة العامة ومن وجود مشروعات منشورة.');
+      } else {
+        setPortfolioLoadError('');
+        setProjects((p.data || []) as Project[]);
+      }
       if (c.data) setClients(c.data as Client[]);
       if (s.data?.value) setSettings({ ...defaults, ...s.data.value });
     })();
@@ -161,7 +176,7 @@ export default function Home() {
       <div className="sd-container">
         <div className="sd-section-top sd-reveal"><span className="sd-index">03 / SELECTED WORK</span><span className="sd-section-aside">سابقة الأعمال</span></div>
         <div className="sd-heading-row sd-reveal"><h2>أعمالنا بتحكي<br/><em>عنّا.</em></h2><p>كل مشروع بداية جديدة، وكل تفصيلة فيه جزء من حكاية تستحق تتشاف.</p></div>
-        {projects.length ? <div className="sd-project-grid">{projects.map((p, i) => <article className={`sd-project-card sd-reveal sd-project-${i % 3}`} key={p.id}>
+        {portfolioLoadError ? <div className="sd-project-empty sd-reveal sd-visible"><span className="sd-empty-symbol">!</span><div><b>مشروعاتنا غير متاحة حاليًا.</b><p>{portfolioLoadError}</p></div></div> : projects.length ? <div className="sd-project-grid">{projects.map((p, i) => <article className={`sd-project-card sd-reveal sd-project-${i % 3}`} key={p.id}>
           <div className="sd-project-image">{p.image_url ? <img src={p.image_url} alt={`${p.title} — ${p.category || 'مشروع'}`} loading={i < 3 ? 'eager' : 'lazy'} decoding="async"/> : <div className="sd-project-empty-image">SIRI / PROJECT</div>}<span className="sd-project-count">{String(i + 1).padStart(2, '0')}</span></div>
           <div className="sd-project-info"><div><span>{p.category || 'مشروع'}</span><h3>{p.title}</h3>{p.location && <small>{p.location}</small>}</div><span className="sd-project-arrow">↙</span></div>
           {p.description && <p className="sd-project-desc">{p.description}</p>}
