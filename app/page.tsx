@@ -7,7 +7,19 @@ import { supabase } from '@/lib/supabase';
 type Project = { id: string; title: string; category?: string; location?: string; image_url?: string; description?: string };
 type Client = { id: string; name: string; logo_url?: string; note?: string };
 type Settings = { phone?: string; whatsapp?: string; email?: string; address?: string; facebook?: string; instagram?: string; tiktok?: string; linkedin?: string; about?: string };
-const defaults: Settings = { address: 'القاهرة، مصر', about: 'نحوّل أفكارك إلى مساحات أنيقة تجمع بين الجودة والراحة والوظيفة، من الفكرة الأولى وحتى أدق تفاصيل التنفيذ.' };
+
+const defaults: Settings = {
+  address: 'القاهرة، مصر',
+  about: 'نحوّل أفكارك إلى مساحات متوازنة تجمع بين الجمال والراحة والوظيفة. نهتم بكل تفصيلة، من فهم احتياجك ورسم الفكرة إلى اختيار الخامات ومتابعة التنفيذ.',
+};
+
+const heroImage = 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=2200&q=88';
+const services = [
+  { no: '01', title: 'التشطيبات المتكاملة', desc: 'تنفيذ متكامل بمراحل واضحة، وخامات مختارة بعناية، وجودة تلاحظها في كل تفصيلة.', image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=82', tag: 'FINISHING' },
+  { no: '02', title: 'التصميم الداخلي', desc: 'تخطيط ذكي للمساحات والألوان والأثاث يعكس شخصيتك ويخدم أسلوب حياتك.', image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=82', tag: 'INTERIOR DESIGN' },
+  { no: '03', title: 'الديكورات والإضاءة', desc: 'تفاصيل بصرية وإضاءة مدروسة تمنح كل مساحة إحساسها وهويتها الخاصة.', image: 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=900&q=82', tag: 'DECOR & LIGHTING' },
+  { no: '04', title: 'تجديد وتطوير المساحات', desc: 'نمنح المساحات القائمة بداية جديدة باستغلال أفضل ونتيجة أكثر أناقة وراحة.', image: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=900&q=82', tag: 'RENOVATION' },
+];
 
 export default function Home() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -16,41 +28,30 @@ export default function Home() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const revealTargets = document.querySelectorAll<HTMLElement>(
-      '.intro-grid, .stats > div, .section-heading, .service-grid article, .project-card, .client-card, .request-form, .contact-mini, .footer-top > div, .quote-band p'
-    );
-    revealTargets.forEach((element) => element.classList.add('motion-reveal'));
+    const nav = document.querySelector<HTMLElement>('.sd-nav');
+    const updateNav = () => nav?.classList.toggle('sd-scrolled', window.scrollY > 24);
+    updateNav();
+    window.addEventListener('scroll', updateNav, { passive: true });
 
+    const targets = document.querySelectorAll<HTMLElement>('.sd-reveal');
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduceMotion || !('IntersectionObserver' in window)) {
-      revealTargets.forEach((element) => element.classList.add('is-visible'));
+      targets.forEach((el) => el.classList.add('sd-visible'));
     } else {
       const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            (entry.target as HTMLElement).classList.add('is-visible');
+            (entry.target as HTMLElement).classList.add('sd-visible');
             observer.unobserve(entry.target);
           }
         });
-      }, { threshold: 0.14, rootMargin: '0px 0px -36px 0px' });
-      revealTargets.forEach((element) => observer.observe(element));
-
-      const nav = document.querySelector<HTMLElement>('.nav');
-      const updateNav = () => nav?.classList.toggle('is-scrolled', window.scrollY > 18);
-      updateNav();
-      window.addEventListener('scroll', updateNav, { passive: true });
-      return () => {
-        observer.disconnect();
-        window.removeEventListener('scroll', updateNav);
-      };
+      }, { threshold: 0.12, rootMargin: '0px 0px -35px 0px' });
+      targets.forEach((el) => observer.observe(el));
+      return () => { observer.disconnect(); window.removeEventListener('scroll', updateNav); };
     }
-
-    const nav = document.querySelector<HTMLElement>('.nav');
-    const updateNav = () => nav?.classList.toggle('is-scrolled', window.scrollY > 18);
-    updateNav();
-    window.addEventListener('scroll', updateNav, { passive: true });
     return () => window.removeEventListener('scroll', updateNav);
   }, []);
 
@@ -89,65 +90,120 @@ export default function Home() {
   }
 
   const whatsapp = settings.whatsapp?.replace(/\D/g, '');
-  const socialLinks: { name: string; url: string }[] = [];
-  if (settings.facebook) socialLinks.push({ name: 'Facebook', url: settings.facebook });
-  if (settings.instagram) socialLinks.push({ name: 'Instagram', url: settings.instagram });
-  if (settings.tiktok) socialLinks.push({ name: 'TikTok', url: settings.tiktok });
-  if (settings.linkedin) socialLinks.push({ name: 'LinkedIn', url: settings.linkedin });
+  const socialLinks: { name: string; url: string; short: string }[] = [];
+  if (settings.facebook) socialLinks.push({ name: 'Facebook', url: settings.facebook, short: 'FB' });
+  if (settings.instagram) socialLinks.push({ name: 'Instagram', url: settings.instagram, short: 'IG' });
+  if (settings.tiktok) socialLinks.push({ name: 'TikTok', url: settings.tiktok, short: 'TK' });
+  if (settings.linkedin) socialLinks.push({ name: 'LinkedIn', url: settings.linkedin, short: 'IN' });
+  const navItems = [['#about', 'عن الشركة'], ['#services', 'خدماتنا'], ['#projects', 'أعمالنا'], ['#clients', 'عملاؤنا'], ['#contact', 'تواصل معنا']];
 
-  return <main>
-    <header className="nav">
-      <a href="#home" className="brand"><Image src="/logo.png" alt="Siri Designs" width={76} height={68} priority/><span>Siri <b>Designs</b><small>تشطيبات • ديكورات • تصميم داخلي</small></span></a>
-      <nav aria-label="التنقل الرئيسي"><a href="#about">عن الشركة</a><a href="#services">خدماتنا</a><a href="#projects">سابقة الأعمال</a><a href="#clients">عملاؤنا</a><a href="#contact">تواصل معنا</a></nav>
-      <a className="nav-cta" href="#request">اطلب عرض سعر <span>↗</span></a>
+  return <main className="sd-site">
+    <header className="sd-nav">
+      <div className="sd-nav-inner">
+        <a href="#home" className="sd-brand" aria-label="Siri Designs - الرئيسية">
+          <Image src="/logo.png" alt="Siri Designs" width={62} height={58} priority />
+          <span><b>Siri Designs</b><small>INTERIOR · FINISHING · DECOR</small></span>
+        </a>
+        <nav className={menuOpen ? 'sd-links sd-links-open' : 'sd-links'} aria-label="التنقل الرئيسي">
+          {navItems.map(([href, label]) => <a key={href} href={href} onClick={() => setMenuOpen(false)}>{label}</a>)}
+        </nav>
+        <a className="sd-nav-action" href="#request">خلينا نبدأ <span>↗</span></a>
+        <button className="sd-menu-toggle" type="button" aria-label="فتح القائمة" aria-expanded={menuOpen} onClick={() => setMenuOpen((v) => !v)}><span/><span/></button>
+      </div>
     </header>
 
-    <section id="home" className="hero">
-      <div className="hero-shape hero-shape-one"/><div className="hero-shape hero-shape-two"/>
-      <div className="hero-content"><span className="eyebrow">SIRI DESIGNS · INTERIOR & FINISHING</span>
-        <h1>نصمم مساحات<br/><em>تشبهك.</em></h1>
-        <p>من أول خط في التصميم إلى آخر لمسة في التنفيذ، نصنع مساحات متوازنة تجمع بين الذوق والجودة والتفاصيل الذكية.</p>
-        <div className="hero-actions"><a className="button primary" href="#projects">شاهد أعمالنا <span>↙</span></a><a className="button ghost" href="#request">ابدأ مشروعك</a></div>
-        <div className="hero-note"><span className="note-line"/> تصميم مدروس. تنفيذ متقن. تفاصيل تصنع الفرق.</div>
+    <section id="home" className="sd-hero">
+      <div className="sd-hero-photo" style={{ backgroundImage: `url("${heroImage}")` }}/>
+      <div className="sd-hero-shade"/>
+      <div className="sd-container sd-hero-layout">
+        <div className="sd-hero-copy">
+          <div className="sd-kicker sd-hero-kicker"><i/> SIRI DESIGNS <span>—</span> INTERIOR STUDIO</div>
+          <h1>مساحتك…<br/><em>بروح مختلفة.</em></h1>
+          <p>نصمم وننفّذ مساحات تحكي عنك. رؤية واضحة، تفاصيل مدروسة، وتجربة متكاملة من أول فكرة لحد آخر لمسة.</p>
+          <div className="sd-hero-actions"><a href="#projects" className="sd-btn sd-btn-light">اكتشف أعمالنا <span>↙</span></a><a href="#request" className="sd-text-btn">ابدأ مشروعك <span>←</span></a></div>
+          <div className="sd-hero-footnote"><span/> تصميم يليق بتفاصيل حياتك</div>
+        </div>
+        <div className="sd-hero-side" aria-hidden="true">
+          <div className="sd-outline-number">01</div>
+          <div className="sd-hero-caption"><b>Spaces<br/>with meaning.</b><span>DESIGNED AROUND YOU</span></div>
+          <div className="sd-vertical-word">SIRI / DESIGNS</div>
+        </div>
       </div>
-      <div className="hero-badge"><span>SPACES</span><b>MADE<br/>FOR YOU</b><i>01 — 04</i></div>
-      <div className="hero-bottom-mark">SIRI <span>DESIGNS</span></div>
+      <a className="sd-scroll-cue" href="#about"><span>SCROLL TO EXPLORE</span><i>↓</i></a>
     </section>
 
-    <section className="intro section" id="about"><div className="section-label">01 / من نحن</div>
-      <div className="intro-grid"><h2>الجمال الحقيقي<br/>يبدأ من <em>التفاصيل.</em></h2><div><p>{settings.about || defaults.about}</p><a className="text-link" href="#contact">احكيلنا عن فكرتك <span>←</span></a></div></div>
-      <div className="stats"><div><b>01</b><span>نسمع احتياجك ونفهم رؤيتك</span></div><div><b>02</b><span>نخطط لكل مساحة بعناية</span></div><div><b>03</b><span>نهتم بالتفاصيل حتى التسليم</span></div></div>
-    </section>
+    <div className="sd-marquee" aria-label="خدمات Siri Designs"><div className="sd-marquee-track">{Array.from({ length: 2 }).map((_, i) => <span key={i}>INTERIOR DESIGN <b>✳</b> FINISHING <b>✳</b> DECORATION <b>✳</b> SPACES THAT FEEL LIKE YOU <b>✳</b> </span>)}</div></div>
 
-    <section id="services" className="services section"><div className="section-label">02 / خدماتنا</div><div className="section-heading"><h2>من الفكرة إلى <em>التنفيذ.</em></h2><p>حلول متكاملة نصممها لتناسب احتياجك وطبيعة مساحتك.</p></div>
-      <div className="service-grid">
-        <article><span>01</span><div className="service-icon">⌂</div><h3>التشطيبات المتكاملة</h3><p>تنفيذ أعمال التشطيب بمراحل واضحة واهتمام باختيار الخامات وجودة التفاصيل.</p><a href="#request">اطلب الخدمة ↙</a></article>
-        <article><span>02</span><div className="service-icon">◈</div><h3>التصميم الداخلي</h3><p>توزيع مدروس للمساحات والألوان والأثاث يعكس شخصيتك ويخدم استخدامك اليومي.</p><a href="#request">اطلب الخدمة ↙</a></article>
-        <article><span>03</span><div className="service-icon">✳</div><h3>الديكورات والإضاءة</h3><p>اختيار الخامات والإضاءة واللمسات الجمالية التي تمنح المكان هويته الخاصة.</p><a href="#request">اطلب الخدمة ↙</a></article>
-        <article><span>04</span><div className="service-icon">▧</div><h3>تجديد وتطوير المساحات</h3><p>تجديد المساحات القائمة لتصبح أكثر عملية وراحة وأناقة مع استغلال أفضل لكل ركن.</p><a href="#request">اطلب الخدمة ↙</a></article>
+    <section className="sd-about sd-section" id="about">
+      <div className="sd-container">
+        <div className="sd-section-top sd-reveal"><span className="sd-index">01 / ABOUT US</span><span className="sd-section-aside">فلسفتنا في التصميم</span></div>
+        <div className="sd-about-grid">
+          <div className="sd-about-title sd-reveal"><span className="sd-mini-label">THE SIRI APPROACH</span><h2>الجمال مش<br/>شكل وبس،<br/><em>ده إحساس.</em></h2></div>
+          <div className="sd-about-content sd-reveal"><p>{settings.about || defaults.about}</p><p className="sd-about-sub">بنوازن بين الشكل العملي والجمال البصري، علشان كل مساحة تكون مريحة، واضحة، وقريبة منك.</p><a href="#contact" className="sd-underlink">اعرف أكتر عنّا <span>↙</span></a><div className="sd-about-stamp"><b>S</b><span>DETAILS<br/>MATTER</span></div></div>
+        </div>
+        <div className="sd-process sd-reveal"><div><b>01</b><span>نسمعك ونفهم رؤيتك</span></div><div><b>02</b><span>نخطط ونصمم بعناية</span></div><div><b>03</b><span>ننّفذ ونتابع التفاصيل</span></div><div><b>04</b><span>نسلّم مساحة تحبها</span></div></div>
       </div>
     </section>
 
-    <section className="project-section section" id="projects"><div className="section-label">03 / مختارات من أعمالنا</div><div className="section-heading"><h2>مساحات صُممت <em>لتُعاش.</em></h2><p>اكتشف بعض المشروعات التي نفخر بتفاصيلها.</p></div>
-      {projects.length ? <div className="project-grid">{projects.map((p, i) => <article className="project-card" key={p.id}>{p.image_url ? <img src={p.image_url} alt={p.title} loading="lazy"/> : <div className={`project-placeholder tone-${i % 3}`}>SIRI / PROJECT</div>}<div><span>{p.category || 'مشروع'}</span><h3>{p.title}</h3>{p.location && <p>{p.location}</p>}{p.description && <p>{p.description}</p>}</div></article>)}</div> : <div className="empty-projects"><div className="empty-mark">✳</div><h3>كل مشروع له حكاية.</h3><p>سيتم عرض سابقة الأعمال هنا بمجرد إضافتها من لوحة التحكم.</p></div>}
+    <section id="services" className="sd-services sd-section">
+      <div className="sd-container">
+        <div className="sd-section-top sd-reveal"><span className="sd-index">02 / WHAT WE DO</span><span className="sd-section-aside">خدماتنا</span></div>
+        <div className="sd-heading-row sd-reveal"><h2>من أول <em>فكرة،</em><br/>لآخر تفصيلة.</h2><p>كل مرحلة في مشروعك ليها اهتمامها. بنقدّم حلول متكاملة تجمع بين التخطيط، الذوق، والتنفيذ المحترف.</p></div>
+        <div className="sd-service-grid">{services.map((service) => <article className="sd-service-card sd-reveal" key={service.no}>
+          <div className="sd-service-image" style={{ backgroundImage: `url("${service.image}")` }}><span className="sd-service-tag">{service.tag}</span><span className="sd-service-no">{service.no}</span></div>
+          <div className="sd-service-info"><h3>{service.title}</h3><p>{service.desc}</p><a href="#request" aria-label={`اطلب خدمة ${service.title}`}>اطلب الخدمة <span>↙</span></a></div>
+        </article>)}</div>
+      </div>
     </section>
 
-    <section className="clients-section section" id="clients"><div className="section-label">04 / شركاء النجاح</div><div className="section-heading"><h2>ثقة نبنيها <em>معًا.</em></h2><p>نفخر بالعمل مع عملائنا وشركائنا.</p></div>{clients.length ? <div className="client-grid">{clients.map(c => <article className="client-card" key={c.id}>{c.logo_url ? <img src={c.logo_url} alt={c.name} loading="lazy"/> : <b>{c.name}</b>}{c.logo_url && <span>{c.name}</span>}{c.note && <small>{c.note}</small>}</article>)}</div> : <div className="empty-projects"><div className="empty-mark">✳</div><h3>شركاء النجاح.</h3><p>ستظهر هنا أسماء العملاء وشعاراتهم بعد إضافتها من لوحة التحكم.</p></div>}</section>
+    <section className="sd-projects sd-section" id="projects">
+      <div className="sd-container">
+        <div className="sd-section-top sd-reveal"><span className="sd-index">03 / SELECTED WORK</span><span className="sd-section-aside">سابقة الأعمال</span></div>
+        <div className="sd-heading-row sd-reveal"><h2>أعمالنا بتحكي<br/><em>عنّا.</em></h2><p>كل مشروع بداية جديدة، وكل تفصيلة فيه جزء من حكاية تستحق تتشاف.</p></div>
+        {projects.length ? <div className="sd-project-grid">{projects.map((p, i) => <article className={`sd-project-card sd-reveal sd-project-${i % 3}`} key={p.id}>
+          <div className="sd-project-image">{p.image_url ? <img src={p.image_url} alt={p.title} loading="lazy"/> : <div className="sd-project-empty-image">SIRI / PROJECT</div>}<span className="sd-project-count">{String(i + 1).padStart(2, '0')}</span></div>
+          <div className="sd-project-info"><div><span>{p.category || 'مشروع'}</span><h3>{p.title}</h3>{p.location && <small>{p.location}</small>}</div><span className="sd-project-arrow">↙</span></div>
+          {p.description && <p className="sd-project-desc">{p.description}</p>}
+        </article>)}</div> : <div className="sd-project-empty sd-reveal"><span className="sd-empty-symbol">✳</span><div><b>هنا تبدأ حكاياتنا القادمة.</b><p>سيتم عرض المشروعات التي نضيفها من لوحة التحكم في هذا القسم تلقائيًا.</p></div><a href="#request">كن مشروعنا القادم <span>↙</span></a></div>}
+      </div>
+    </section>
 
-    <section className="quote-band"><p>“المكان الجميل لا يُرى فقط،<br/>بل تشعر به في كل يوم.”</p><span>SIRI DESIGNS — DESIGNED AROUND YOU</span></section>
+    <section className="sd-clients sd-section" id="clients">
+      <div className="sd-container">
+        <div className="sd-section-top sd-reveal"><span className="sd-index">04 / OUR CLIENTS</span><span className="sd-section-aside">عملاؤنا وشركاء النجاح</span></div>
+        <div className="sd-heading-row sd-reveal"><h2>الثقة أساس<br/><em>كل مساحة.</em></h2><p>العلاقات الناجحة بتبدأ بفهم حقيقي، وبتكبر بالالتزام والاهتمام.</p></div>
+        {clients.length ? <div className="sd-client-row">{clients.map((c) => <article className="sd-client-card sd-reveal" key={c.id}>{c.logo_url ? <img src={c.logo_url} alt={c.name} loading="lazy"/> : <b>{c.name}</b>}{c.logo_url && <span>{c.name}</span>}{c.note && <small>{c.note}</small>}</article>)}</div> : <div className="sd-client-note sd-reveal"><span>✳</span> سيتم عرض أسماء وشعارات العملاء هنا بعد إضافتها من لوحة الإدارة.</div>}
+      </div>
+    </section>
 
-    <section id="request" className="request-section section"><div className="section-label">05 / ابدأ مشروعك</div><div className="request-grid"><div><h2>كل بداية حلوة<br/><em>بتبدأ بفكرة.</em></h2><p>احكيلنا عن مشروعك، وفريقنا هيتواصل معاك لمناقشة التفاصيل والخطوة المناسبة.</p><div className="contact-mini"><span>تواصل مباشر</span>{settings.phone ? <a href={`tel:${settings.phone.replace(/[^+\d]/g, '')}`}>{settings.phone}</a> : <b>أضف رقم التواصل من لوحة الإدارة</b>}{settings.email && <small>{settings.email}</small>}</div></div>
-      <form className="request-form" onSubmit={submit}><div className="form-title"><h3>اطلب عرض سعر</h3><span>الحقول المعلّمة مطلوبة *</span></div><div className="form-row"><label>الاسم بالكامل *<input name="name" required maxLength={100} placeholder="اكتب اسمك"/></label><label>رقم الموبايل *<input name="phone" required type="tel" maxLength={30} placeholder="01xxxxxxxxx"/></label></div>
-        <div className="form-row"><label>البريد الإلكتروني<input name="email" type="email" maxLength={150} placeholder="name@example.com"/></label><label>نوع الخدمة *<select name="service" required defaultValue=""><option value="" disabled>اختار الخدمة</option><option>تشطيبات متكاملة</option><option>تصميم داخلي</option><option>ديكورات وإضاءة</option><option>تجديد وتطوير</option><option>أخرى</option></select></label></div>
-        <label>الميزانية التقريبية<select name="budget" defaultValue=""><option value="">اختياري</option><option>أقل من 100,000 جنيه</option><option>100,000 – 300,000 جنيه</option><option>300,000 – 700,000 جنيه</option><option>أكثر من 700,000 جنيه</option><option>لسه بحدد</option></select></label>
-        <label>تفاصيل المشروع<textarea name="details" rows={4} maxLength={3000} placeholder="احكيلنا عن المساحة والموقع وفكرتك..."/></label>
-        {error && <p className="form-error" role="alert">{error}</p>}{sent && <p className="form-success" role="status">تم إرسال طلبك بنجاح، شكرًا لثقتك في Siri Designs. هنتواصل معاك قريبًا.</p>}
-        <button className="button primary submit" disabled={busy}>{busy ? 'جاري الإرسال...' : 'إرسال طلبك ↗'}</button><small className="privacy">بياناتك تُستخدم للتواصل معك بخصوص طلبك فقط.</small>
-      </form></div></section>
+    <section className="sd-quote"><div className="sd-container sd-quote-inner"><span className="sd-index">SIRI DESIGN PHILOSOPHY</span><p>مش بنصمم مكان<br/>يتشاف وبس… <em>بنصمم مكان يتحس.</em></p><a href="#request">خلينا نحكي عن مساحتك <span>↙</span></a><div className="sd-quote-mark">“</div></div></section>
 
-    <footer id="contact"><div className="footer-top"><div className="footer-brand"><Image src="/logo.png" alt="Siri Designs" width={110} height={98}/><h3>Siri <em>Designs</em></h3><p>التفاصيل تصنع الفرق.</p></div><div><h4>تصفح</h4><a href="#about">عن الشركة</a><a href="#services">خدماتنا</a><a href="#projects">سابقة الأعمال</a><a href="#clients">عملاؤنا</a></div><div><h4>تواصل معنا</h4>{settings.phone && <a href={`tel:${settings.phone.replace(/[^+\d]/g, '')}`}>{settings.phone}</a>}{settings.email && <a href={`mailto:${settings.email}`}>{settings.email}</a>}<p>{settings.address || defaults.address}</p></div><div><h4>تابعنا</h4>{socialLinks.map(({ name, url }) => <a key={name} href={url} target="_blank" rel="noreferrer">{name} ↗</a>)}{whatsapp && <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noreferrer">WhatsApp ↗</a>}{!socialLinks.length && !whatsapp && <p>أضف روابط التواصل من لوحة التحكم</p>}</div></div>
-      <div className="footer-bottom"><span>© {new Date().getFullYear()} Siri Designs. جميع الحقوق محفوظة.</span><span className="footer-credit">Designed by <strong>Tech Relation</strong></span></div>
-    </footer>
-    {whatsapp && <a className="whatsapp-float" href={`https://wa.me/${whatsapp}`} target="_blank" rel="noreferrer" aria-label="تواصل معنا عبر واتساب">واتساب <b>↗</b></a>}
+    <section id="request" className="sd-contact sd-section">
+      <div className="sd-container">
+        <div className="sd-section-top sd-reveal"><span className="sd-index">05 / START A PROJECT</span><span className="sd-section-aside">ابدأ مشروعك</span></div>
+        <div className="sd-contact-grid">
+          <div className="sd-contact-copy sd-reveal"><span className="sd-mini-label">LET'S CREATE SOMETHING BEAUTIFUL</span><h2>عندك فكرة؟<br/><em>إحنا جاهزين.</em></h2><p>احكيلنا عن المساحة اللي بتحلم بيها. ابعت تفاصيل مشروعك، وفريقنا هيتواصل معاك علشان نبدأ أول خطوة.</p>
+            <div className="sd-direct-contact"><span>تواصل مباشر</span>{settings.phone ? <a href={`tel:${settings.phone.replace(/[^+\d]/g, '')}`}>{settings.phone}</a> : <b>أضف رقم التواصل من لوحة الإدارة</b>}{settings.email && <a href={`mailto:${settings.email}`}>{settings.email}</a>}{settings.address && <small>{settings.address}</small>}</div>
+          </div>
+          <form className="sd-form sd-reveal" onSubmit={submit}>
+            <div className="sd-form-head"><div><span>PROJECT INQUIRY</span><h3>احكيلنا عن مشروعك</h3></div><b>01 — 05</b></div>
+            <div className="sd-form-row"><label>الاسم بالكامل *<input name="name" required maxLength={100} placeholder="اسمك"/></label><label>رقم الموبايل *<input name="phone" required type="tel" maxLength={30} placeholder="01xxxxxxxxx"/></label></div>
+            <div className="sd-form-row"><label>البريد الإلكتروني<input name="email" type="email" maxLength={150} placeholder="name@example.com"/></label><label>نوع الخدمة *<select name="service" required defaultValue=""><option value="" disabled>اختار الخدمة</option><option>تشطيبات متكاملة</option><option>تصميم داخلي</option><option>ديكورات وإضاءة</option><option>تجديد وتطوير</option><option>أخرى</option></select></label></div>
+            <label>الميزانية التقريبية<select name="budget" defaultValue=""><option value="">اختياري</option><option>أقل من 100,000 جنيه</option><option>100,000 – 300,000 جنيه</option><option>300,000 – 700,000 جنيه</option><option>أكثر من 700,000 جنيه</option><option>لسه بحدد</option></select></label>
+            <label>تفاصيل المشروع<textarea name="details" rows={3} maxLength={3000} placeholder="نوع المساحة، الموقع، وأي تفاصيل تحب تشاركها..."/></label>
+            {error && <p className="sd-form-error" role="alert">{error}</p>}{sent && <p className="sd-form-success" role="status">وصلنا طلبك بنجاح. شكرًا لثقتك في Siri Designs، هنتواصل معاك قريبًا.</p>}
+            <button className="sd-submit" disabled={busy}>{busy ? 'جاري إرسال طلبك...' : 'إرسال طلب المشروع'} <span>↙</span></button><small className="sd-privacy">بياناتك آمنة، ونستخدمها للتواصل معك بخصوص طلبك فقط.</small>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <footer className="sd-footer" id="contact"><div className="sd-container"><div className="sd-footer-main">
+      <div className="sd-footer-brand"><Image src="/logo.png" alt="Siri Designs" width={100} height={88}/><b>Siri Designs</b><p>نصمم مساحات تشبهك.</p></div>
+      <div><h4>استكشف</h4><a href="#about">عن الشركة</a><a href="#services">خدماتنا</a><a href="#projects">سابقة الأعمال</a><a href="#clients">عملاؤنا</a></div>
+      <div><h4>تواصل معنا</h4>{settings.phone && <a href={`tel:${settings.phone.replace(/[^+\d]/g, '')}`}>{settings.phone}</a>}{settings.email && <a href={`mailto:${settings.email}`}>{settings.email}</a>}<p>{settings.address || defaults.address}</p></div>
+      <div><h4>تابعنا</h4>{socialLinks.map(({ name, url, short }) => <a className="sd-social-link" key={name} href={url} target="_blank" rel="noreferrer"><span>{short}</span>{name} ↗</a>)}{whatsapp && <a className="sd-social-link" href={`https://wa.me/${whatsapp}`} target="_blank" rel="noreferrer"><span>WA</span>WhatsApp ↗</a>}{!socialLinks.length && !whatsapp && <p>أضف روابط التواصل من لوحة الإدارة</p>}</div>
+    </div><div className="sd-footer-bottom"><span>© {new Date().getFullYear()} Siri Designs. جميع الحقوق محفوظة.</span><span>Designed by <b>Tech Relation</b></span></div></div></footer>
+    {whatsapp && <a className="sd-whatsapp" href={`https://wa.me/${whatsapp}`} target="_blank" rel="noreferrer" aria-label="تواصل معنا عبر واتساب"><span>واتساب</span><b>↗</b></a>}
   </main>;
 }
