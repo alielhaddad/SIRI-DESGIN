@@ -20,32 +20,78 @@ const defaultMedia: SiteMedia = {
 };
 
 const defaultServices: Service[] = [
-  { id: 'fitout', nameEn: 'Complete Fit-Out', nameAr: 'التشطيبات المتكاملة', descEn: 'End-to-end execution with clear stages, carefully selected materials, and quality you can see in every detail.', descAr: 'تنفيذ متكامل بمراحل واضحة وخامات مختارة بعناية وجودة تظهر في كل تفصيلة.', imageUrl: '/projects/fitout-display-wide.webp', tagEn: 'FINISHING', tagAr: 'تشطيبات', active: true, sortOrder: 1 },
-  { id: 'interior', nameEn: 'Interior Design', nameAr: 'التصميم الداخلي', descEn: 'Thoughtful space planning, colors, and furnishings that reflect your personality and support your lifestyle.', descAr: 'تخطيط مدروس للمساحات والألوان والأثاث يعكس شخصيتك ويلائم أسلوب حياتك.', imageUrl: '/projects/dnp-interior.webp', tagEn: 'INTERIOR DESIGN', tagAr: 'تصميم داخلي', active: true, sortOrder: 2 },
-  { id: 'decor', nameEn: 'Decor & Lighting', nameAr: 'الديكورات والإضاءة', descEn: 'Considered visual details and lighting that give every space its own character and atmosphere.', descAr: 'تفاصيل جمالية وحلول إضاءة تمنح كل مساحة طابعها وأجواءها الخاصة.', imageUrl: '/projects/alura-arches.webp', tagEn: 'DECOR & LIGHTING', tagAr: 'ديكورات وإضاءة', active: true, sortOrder: 3 },
-  { id: 'renovation', nameEn: 'Renovation & Upgrades', nameAr: 'التجديد والتطوير', descEn: 'We give existing spaces a fresh start through smarter layouts and more refined, comfortable results.', descAr: 'نجدد المساحات القائمة بتوزيعات أكثر ذكاءً ونتائج أكثر أناقة وراحة.', imageUrl: '/projects/site-counter-finish.webp', tagEn: 'RENOVATION', tagAr: 'تجديد وتطوير', active: true, sortOrder: 4 },
+  { id: 'interior-design', nameEn: 'Interior Design', nameAr: 'التصميم الداخلي', descEn: 'Concept development, space planning, and 3D visualization tailored to each retail brand.', descAr: 'تطوير الفكرة وتخطيط المساحات والتصور ثلاثي الأبعاد بما يتناسب مع هوية كل علامة تجارية.', imageUrl: '/projects/dnp-interior.webp', tagEn: 'DESIGN', tagAr: 'تصميم', active: true, sortOrder: 1 },
+  { id: 'retail-fitout', nameEn: 'Fit-Out Contracting', nameAr: 'مقاولات وتجهيزات المحلات', descEn: 'Civil works, MEP, ceilings, flooring, lighting, and signage for branded retail spaces.', descAr: 'الأعمال المدنية والكهروميكانيكية والأسقف والأرضيات والإضاءة واللافتات للمساحات التجارية ذات الهوية الخاصة.', imageUrl: '/projects/dnp-storefront.webp', tagEn: 'FIT-OUT', tagAr: 'تجهيز وتشطيب', active: true, sortOrder: 2 },
+  { id: 'furniture-decor', nameEn: 'Furniture & Décor Supply', nameAr: 'توريد الأثاث والديكور', descEn: 'Custom furnishings, shelving, and lighting units designed to support the retail experience.', descAr: 'أثاث مخصص ووحدات أرفف وإضاءة مصممة لدعم تجربة التسوق وإبراز المنتجات.', imageUrl: '/projects/fitout-display-wide.webp', tagEn: 'FURNITURE & DÉCOR', tagAr: 'أثاث وديكور', active: true, sortOrder: 3 },
+  { id: 'maintenance', nameEn: 'Maintenance', nameAr: 'الصيانة والدعم', descEn: 'Ongoing monthly support for more than 45 stores, with fast response and scheduled preventive maintenance.', descAr: 'دعم وصيانة شهرية لأكثر من 45 متجرًا، مع فرق استجابة سريعة وصيانة وقائية مجدولة.', imageUrl: '/projects/site-ceiling-install.webp', tagEn: 'SUPPORT', tagAr: 'دعم وصيانة', active: true, sortOrder: 4 },
+  { id: 'consulting-project-management', nameEn: 'Consulting & Project Management', nameAr: 'الاستشارات وإدارة المشروعات', descEn: 'Project supervision, budgeting, and ISO compliance support from concept through delivery.', descAr: 'الإشراف على المشروعات وإعداد الميزانيات ودعم التوافق مع معايير ISO من بداية الفكرة حتى التسليم.', imageUrl: '/projects/fitout-lighting-progress.webp', tagEn: 'PROJECT MANAGEMENT', tagAr: 'إدارة المشروعات', active: true, sortOrder: 5 },
 ];
 
 const copy = {
   en: {
-    nav: ['About', 'Services', 'Our Work', 'Clients', 'Contact'], talk: "Let's Talk", heroKicker: 'SIRI DESIGNS — INTERIOR STUDIO', heroTitle1: 'Your space.', heroTitle2: 'A different feeling.', heroBody: 'We design and deliver spaces that tell your story. A clear vision, considered details, and a seamless experience from the first idea to the final touch.', explore: 'Explore Our Work', start: 'Start Your Project', designed: 'Designed Around Your Life', heroCaption: 'Spaces<br/>with meaning.', heroCaptionSmall: 'DESIGNED AROUND YOU', scroll: 'SCROLL TO EXPLORE', marquee: ['INTERIOR DESIGN', 'FINISHING', 'DECORATION', 'SPACES THAT FEEL LIKE YOU'],
-    aboutIndex: '01 / ABOUT US', aboutAside: 'OUR DESIGN PHILOSOPHY', approach: 'THE SIRI APPROACH', aboutTitle1: 'Beauty is more', aboutTitle2: 'than what you see.', aboutTitle3: 'It is what you feel.', aboutSub: 'We balance function and visual appeal to make every space comfortable, considered, and personal.', discover: 'Discover Our Approach', process: ['We listen and understand your vision', 'We plan and design with care', 'We build and oversee every detail', 'We deliver a space you love'],
-    servicesIndex: '02 / WHAT WE DO', servicesAside: 'Our Services', serviceHeading1: 'From the first', serviceHeading2: 'idea,', serviceHeading3: 'to the final detail.', servicesIntro: 'Every stage of your project deserves attention. We bring planning, design sensibility, and professional execution together.', exploreService: 'Explore Service',
-    projectsIndex: '03 / SELECTED WORK', projectsAside: 'Selected Projects', projectsHeading1: 'Our work', projectsHeading2: 'speaks for itself.', projectsIntro: 'Every project is a new beginning, and every detail is part of a story worth seeing.', projectErrorTitle: 'Our projects are temporarily unavailable.', projectErrorText: 'Please try again shortly.', projectEmptyTitle: 'Our next stories start here.', projectEmptyText: 'Add projects, photos, and descriptions in the admin dashboard and they will appear here automatically.', becomeProject: 'Become Our Next Project', projectLabel: 'PROJECT',
-    clientsIndex: '04 / OUR CLIENTS', clientsAside: 'Clients & Partners', clientsHeading1: 'Trust is the foundation', clientsHeading2: 'of every space.', clientsIntro: 'Strong partnerships begin with understanding and grow through commitment and attention to detail.', clientsEmpty: 'Client names and logos will appear here once they are added in the admin dashboard.',
+    nav: ['About', 'Vision & Values', 'Services', 'Our Work', 'Partners', 'Contact'], talk: "Let's Talk", heroKicker: 'SIRI DESIGNS — RETAIL INTERIOR & FIT-OUT', heroTitle1: 'Retail spaces.', heroTitle2: 'Elevated by design.', heroBody: 'We transform retail visions into stunning, functional spaces. From interior design and fit-out to furnishing and ongoing support, we create exceptional branded retail environments.', explore: 'Explore Our Work', start: 'Start Your Project', designed: 'Designed Around Your Life', heroCaption: 'Spaces<br/>with meaning.', heroCaptionSmall: 'DESIGNED AROUND YOU', scroll: 'SCROLL TO EXPLORE', marquee: ['RETAIL INTERIOR DESIGN', 'FIT-OUT CONTRACTING', 'FURNITURE & DÉCOR', 'MAINTENANCE & SUPPORT'],
+    aboutIndex: '01 / ABOUT US', aboutAside: 'OUR DESIGN PHILOSOPHY', approach: 'THE SIRI APPROACH', aboutTitle1: 'Retail spaces,', aboutTitle2: 'designed around', aboutTitle3: 'your brand.', aboutSub: 'We deliver turnkey projects for branded retail outlets, with high-quality results tailored to each client.', discover: 'Discover Our Approach', process: ['We listen and understand your vision', 'We plan and design with care', 'We build and oversee every detail', 'We deliver a space you love'],
+    servicesIndex: '03 / WHAT WE DO', servicesAside: 'Our Services', serviceHeading1: 'From the first', serviceHeading2: 'idea,', serviceHeading3: 'to the final detail.', servicesIntro: 'We offer end-to-end retail solutions, from initial concept to ongoing support. Our expertise covers every aspect of project delivery and maintenance.', exploreService: 'Explore Service',
+    projectsIndex: '04 / SELECTED WORK', projectsAside: 'Selected Projects', projectsHeading1: 'Our work', projectsHeading2: 'speaks for itself.', projectsIntro: 'Every project is a new beginning, and every detail is part of a story worth seeing.', projectErrorTitle: 'Our projects are temporarily unavailable.', projectErrorText: 'Please try again shortly.', projectEmptyTitle: 'Our next stories start here.', projectEmptyText: 'Add projects, photos, and descriptions in the admin dashboard and they will appear here automatically.', becomeProject: 'Become Our Next Project', projectLabel: 'PROJECT',
+    clientsIndex: '05 / OUR CLIENTS', clientsAside: 'Clients & Partners', clientsHeading1: 'Trust is the foundation', clientsHeading2: 'of every space.', clientsIntro: 'We proudly partner with leading retail brands and deliver projects across prominent mall locations throughout the market.', clientsEmpty: 'Client names and logos will appear here once they are added in the admin dashboard.',
     philosophy: 'SIRI DESIGN PHILOSOPHY', quote1: 'We do not just design spaces', quote2: 'to be seen…', quote3: 'we design spaces to be felt.', quoteCta: "Let's Talk About Your Space",
-    contactIndex: '05 / START A PROJECT', contactAside: 'Start a Project', contactKicker: "LET'S CREATE SOMETHING BEAUTIFUL", contactTitle1: 'Have an idea?', contactTitle2: 'We are ready.', contactBody: 'Tell us about the space you have in mind. Share a few project details and our team will get in touch to help you take the first step.', direct: 'Direct Contact', addPhone: 'Add your phone number in the admin dashboard', viewLocation: 'View Company Location', formKicker: 'PROJECT INQUIRY', formTitle: 'Tell Us About Your Project', fullName: 'Full Name', phone: 'Phone Number', email: 'Email Address', serviceRequired: 'Service Required', selectService: 'Select a service', other: 'Other', budget: 'Estimated Budget', optional: 'Optional', budgetOptions: ['Under EGP 100,000', 'EGP 100,000 – 300,000', 'EGP 300,000 – 700,000', 'Over EGP 700,000', 'Still to be determined'], details: 'Project Details', detailsPlaceholder: 'Space type, location, and anything else you would like to share...', submit: 'Submit Project Inquiry', submitting: 'Submitting your request...', privacy: 'Your information is secure and will only be used to follow up on your inquiry.', success: 'Your request has been submitted successfully. Thank you for choosing Siri Designs. Our team will contact you soon.', error: 'We could not submit your request. Please try again or contact us directly.', emailFailed: 'Your request was saved, but the email notification could not be sent. The request is still available in the admin dashboard.', emailMissing: 'Your request was saved. Email notifications are not configured yet.',
+    contactIndex: '07 / START A PROJECT', contactAside: 'Start a Project', contactKicker: "LET'S CREATE SOMETHING BEAUTIFUL", contactTitle1: 'Have an idea?', contactTitle2: 'We are ready.', contactBody: 'Tell us about the space you have in mind. Share a few project details and our team will get in touch to help you take the first step.', direct: 'Direct Contact', addPhone: 'Add your phone number in the admin dashboard', viewLocation: 'View Company Location', formKicker: 'PROJECT INQUIRY', formTitle: 'Tell Us About Your Project', fullName: 'Full Name', phone: 'Phone Number', email: 'Email Address', serviceRequired: 'Service Required', selectService: 'Select a service', other: 'Other', budget: 'Estimated Budget', optional: 'Optional', budgetOptions: ['Under EGP 100,000', 'EGP 100,000 – 300,000', 'EGP 300,000 – 700,000', 'Over EGP 700,000', 'Still to be determined'], details: 'Project Details', detailsPlaceholder: 'Space type, location, and anything else you would like to share...', submit: 'Submit Project Inquiry', submitting: 'Submitting your request...', privacy: 'Your information is secure and will only be used to follow up on your inquiry.', success: 'Your request has been submitted successfully. Thank you for choosing Siri Designs. Our team will contact you soon.', error: 'We could not submit your request. Please try again or contact us directly.', emailFailed: 'Your request was saved, but the email notification could not be sent. The request is still available in the admin dashboard.', emailMissing: 'Your request was saved. Email notifications are not configured yet.',
     footerTag: 'We design spaces that feel like you.', exploreFooter: 'Explore', contactFooter: 'Contact', follow: 'Follow Us', noSocial: 'Add social links in the admin dashboard', whatsapp: 'WhatsApp', allRights: 'All rights reserved.', language: 'العربية', light: 'Light mode', dark: 'Dark mode',
   },
   ar: {
-    nav: ['من نحن', 'خدماتنا', 'أعمالنا', 'عملاؤنا', 'تواصل معنا'], talk: 'ابدأ التواصل', heroKicker: 'سيري ديزاينز — استوديو التصميم الداخلي', heroTitle1: 'مساحتك…', heroTitle2: 'بإحساس مختلف.', heroBody: 'نصمم وننفذ مساحات تحكي قصتك. رؤية واضحة وتفاصيل مدروسة وتجربة متكاملة من أول فكرة وحتى آخر لمسة.', explore: 'شاهد أعمالنا', start: 'ابدأ مشروعك', designed: 'تصميم يناسب أسلوب حياتك', heroCaption: 'مساحات<br/>لها معنى.', heroCaptionSmall: 'مصممة خصيصًا لك', scroll: 'اكتشف المزيد', marquee: ['التصميم الداخلي', 'التشطيبات', 'الديكورات', 'مساحات تشبهك'],
-    aboutIndex: '01 / من نحن', aboutAside: 'فلسفتنا في التصميم', approach: 'منهج سيري', aboutTitle1: 'الجمال ليس فقط', aboutTitle2: 'ما تراه بعينيك،', aboutTitle3: 'بل ما تشعر به.', aboutSub: 'نوازن بين العملية والجمال لنصنع مساحات مريحة ومدروسة وتعبر عن أصحابها.', discover: 'اكتشف أسلوبنا', process: ['نستمع إليك ونفهم رؤيتك', 'نخطط ونصمم بعناية', 'ننّفذ ونتابع كل التفاصيل', 'نسلمك مساحة تحبها'],
-    servicesIndex: '02 / ماذا نقدم', servicesAside: 'خدماتنا', serviceHeading1: 'من أول', serviceHeading2: 'فكرة،', serviceHeading3: 'حتى آخر تفصيلة.', servicesIntro: 'كل مرحلة في مشروعك تستحق الاهتمام. نجمع بين التخطيط والحس التصميمي والتنفيذ الاحترافي.', exploreService: 'اكتشف الخدمة',
-    projectsIndex: '03 / أعمال مختارة', projectsAside: 'مشروعات مختارة', projectsHeading1: 'أعمالنا', projectsHeading2: 'تتحدث عن نفسها.', projectsIntro: 'كل مشروع بداية جديدة، وكل تفصيلة جزء من حكاية تستحق أن تُروى.', projectErrorTitle: 'مشروعاتنا غير متاحة مؤقتًا.', projectErrorText: 'حاول مرة أخرى بعد قليل.', projectEmptyTitle: 'حكايتنا القادمة تبدأ معك.', projectEmptyText: 'أضف المشروعات والصور والأوصاف من لوحة الإدارة لتظهر هنا تلقائيًا.', becomeProject: 'كن مشروعنا القادم', projectLabel: 'مشروع',
-    clientsIndex: '04 / عملاؤنا', clientsAside: 'العملاء والشركاء', clientsHeading1: 'الثقة هي أساس', clientsHeading2: 'كل مساحة ناجحة.', clientsIntro: 'تبدأ الشراكات القوية بالفهم وتنمو بالالتزام والاهتمام بالتفاصيل.', clientsEmpty: 'ستظهر أسماء العملاء وشعاراتهم هنا بعد إضافتها من لوحة الإدارة.',
+    nav: ['من نحن', 'الرؤية والقيم', 'خدماتنا', 'أعمالنا', 'شركاؤنا', 'تواصل معنا'], talk: 'ابدأ التواصل', heroKicker: 'سيري ديزاينز — تصميم وتجهيز مساحات البيع بالتجزئة', heroTitle1: 'مساحات تجارية', heroTitle2: 'ترتقي بالتصميم.', heroBody: 'نحوّل رؤى العلامات التجارية إلى مساحات بيع بالتجزئة مميزة وعملية. من التصميم الداخلي والتجهيز إلى الأثاث والدعم المستمر، نصنع بيئات تجارية تعكس هوية كل علامة.', explore: 'شاهد أعمالنا', start: 'ابدأ مشروعك', designed: 'تصميم يناسب أسلوب حياتك', heroCaption: 'مساحات<br/>لها معنى.', heroCaptionSmall: 'مصممة خصيصًا لك', scroll: 'اكتشف المزيد', marquee: ['تصميم مساحات البيع بالتجزئة', 'مقاولات وتجهيزات', 'الأثاث والديكور', 'الصيانة والدعم'],
+    aboutIndex: '01 / من نحن', aboutAside: 'فلسفتنا في التصميم', approach: 'منهج سيري', aboutTitle1: 'مساحات تجارية', aboutTitle2: 'تعكس هوية', aboutTitle3: 'علامتك.', aboutSub: 'ننفذ مشروعات متكاملة وجاهزة للتشغيل لمتاجر تحمل هويات تجارية مميزة، بجودة عالية وحلول مصممة حسب الاحتياج.', discover: 'اكتشف أسلوبنا', process: ['نستمع إليك ونفهم رؤيتك', 'نخطط ونصمم بعناية', 'ننّفذ ونتابع كل التفاصيل', 'نسلمك مساحة تحبها'],
+    servicesIndex: '03 / ماذا نقدم', servicesAside: 'خدماتنا', serviceHeading1: 'من أول', serviceHeading2: 'فكرة،', serviceHeading3: 'حتى آخر تفصيلة.', servicesIntro: 'نقدم حلولًا متكاملة لمساحات البيع بالتجزئة، من الفكرة الأولى وحتى الدعم المستمر. تشمل خبراتنا مختلف مراحل التنفيذ والتجهيز والصيانة.', exploreService: 'اكتشف الخدمة',
+    projectsIndex: '04 / أعمال مختارة', projectsAside: 'مشروعات مختارة', projectsHeading1: 'أعمالنا', projectsHeading2: 'تتحدث عن نفسها.', projectsIntro: 'كل مشروع بداية جديدة، وكل تفصيلة جزء من حكاية تستحق أن تُروى.', projectErrorTitle: 'مشروعاتنا غير متاحة مؤقتًا.', projectErrorText: 'حاول مرة أخرى بعد قليل.', projectEmptyTitle: 'حكايتنا القادمة تبدأ معك.', projectEmptyText: 'أضف المشروعات والصور والأوصاف من لوحة الإدارة لتظهر هنا تلقائيًا.', becomeProject: 'كن مشروعنا القادم', projectLabel: 'مشروع',
+    clientsIndex: '05 / عملاؤنا', clientsAside: 'العملاء والشركاء', clientsHeading1: 'الثقة هي أساس', clientsHeading2: 'كل مساحة ناجحة.', clientsIntro: 'نفخر بالشراكة مع علامات تجارية رائدة وتنفيذ المشروعات في عدد من أبرز المراكز التجارية والمولات.', clientsEmpty: 'ستظهر أسماء العملاء وشعاراتهم هنا بعد إضافتها من لوحة الإدارة.',
     philosophy: 'فلسفة سيري ديزاينز', quote1: 'نحن لا نصمم مساحات', quote2: 'لتُرى فقط…', quote3: 'بل نصمم مساحات لتُشعَر.', quoteCta: 'لنتحدث عن مساحتك',
-    contactIndex: '05 / ابدأ مشروعك', contactAside: 'ابدأ مشروعًا جديدًا', contactKicker: 'لنصنع شيئًا جميلًا معًا', contactTitle1: 'لديك فكرة؟', contactTitle2: 'نحن جاهزون.', contactBody: 'احكِ لنا عن المساحة التي تتخيلها. شاركنا بعض تفاصيل مشروعك وسيتواصل معك فريقنا لمساعدتك في أول خطوة.', direct: 'تواصل مباشر', addPhone: 'أضف رقم هاتفك من لوحة الإدارة', viewLocation: 'عرض موقع الشركة', formKicker: 'طلب مشروع جديد', formTitle: 'أخبرنا عن مشروعك', fullName: 'الاسم بالكامل', phone: 'رقم الهاتف', email: 'البريد الإلكتروني', serviceRequired: 'الخدمة المطلوبة', selectService: 'اختر الخدمة', other: 'أخرى', budget: 'الميزانية المتوقعة', optional: 'اختياري', budgetOptions: ['أقل من 100,000 جنيه', 'من 100,000 إلى 300,000 جنيه', 'من 300,000 إلى 700,000 جنيه', 'أكثر من 700,000 جنيه', 'لم يتم تحديدها بعد'], details: 'تفاصيل المشروع', detailsPlaceholder: 'نوع المساحة والموقع وأي تفاصيل أخرى تود مشاركتها...', submit: 'إرسال طلب المشروع', submitting: 'جارٍ إرسال طلبك...', privacy: 'بياناتك آمنة وستُستخدم فقط للتواصل معك بخصوص طلبك.', success: 'تم إرسال طلبك بنجاح. شكرًا لاختيارك Siri Designs، سيتواصل معك فريقنا قريبًا.', error: 'تعذر إرسال طلبك. حاول مرة أخرى أو تواصل معنا مباشرة.', emailFailed: 'تم حفظ طلبك، لكن تعذر إرسال إشعار البريد الإلكتروني. طلبك موجود في لوحة الإدارة.', emailMissing: 'تم حفظ طلبك. لم يتم إعداد إشعارات البريد الإلكتروني بعد.',
+    contactIndex: '07 / ابدأ مشروعك', contactAside: 'ابدأ مشروعًا جديدًا', contactKicker: 'لنصنع شيئًا جميلًا معًا', contactTitle1: 'لديك فكرة؟', contactTitle2: 'نحن جاهزون.', contactBody: 'احكِ لنا عن المساحة التي تتخيلها. شاركنا بعض تفاصيل مشروعك وسيتواصل معك فريقنا لمساعدتك في أول خطوة.', direct: 'تواصل مباشر', addPhone: 'أضف رقم هاتفك من لوحة الإدارة', viewLocation: 'عرض موقع الشركة', formKicker: 'طلب مشروع جديد', formTitle: 'أخبرنا عن مشروعك', fullName: 'الاسم بالكامل', phone: 'رقم الهاتف', email: 'البريد الإلكتروني', serviceRequired: 'الخدمة المطلوبة', selectService: 'اختر الخدمة', other: 'أخرى', budget: 'الميزانية المتوقعة', optional: 'اختياري', budgetOptions: ['أقل من 100,000 جنيه', 'من 100,000 إلى 300,000 جنيه', 'من 300,000 إلى 700,000 جنيه', 'أكثر من 700,000 جنيه', 'لم يتم تحديدها بعد'], details: 'تفاصيل المشروع', detailsPlaceholder: 'نوع المساحة والموقع وأي تفاصيل أخرى تود مشاركتها...', submit: 'إرسال طلب المشروع', submitting: 'جارٍ إرسال طلبك...', privacy: 'بياناتك آمنة وستُستخدم فقط للتواصل معك بخصوص طلبك.', success: 'تم إرسال طلبك بنجاح. شكرًا لاختيارك Siri Designs، سيتواصل معك فريقنا قريبًا.', error: 'تعذر إرسال طلبك. حاول مرة أخرى أو تواصل معنا مباشرة.', emailFailed: 'تم حفظ طلبك، لكن تعذر إرسال إشعار البريد الإلكتروني. طلبك موجود في لوحة الإدارة.', emailMissing: 'تم حفظ طلبك. لم يتم إعداد إشعارات البريد الإلكتروني بعد.',
     footerTag: 'نصمم مساحات تشبهك.', exploreFooter: 'استكشف', contactFooter: 'تواصل معنا', follow: 'تابعنا', noSocial: 'أضف روابط التواصل الاجتماعي من لوحة الإدارة', whatsapp: 'واتساب', allRights: 'جميع الحقوق محفوظة.', language: 'English', light: 'الوضع الفاتح', dark: 'الوضع الداكن',
+  },
+} as const;
+
+const companyProfileCopy = {
+  en: {
+    visionTitle: 'Our Vision & Mission', visionLabel: 'OUR VISION', missionLabel: 'OUR MISSION', valuesTitle: 'Our Core Values',
+    vision: 'To be the go-to partner for premium retail interior solutions across Egypt and the region.',
+    mission: 'To deliver exceptional design, fit-out, and furnishing services that align with brand identity and ensure operational excellence.',
+    valuesIntro: 'Our values guide every project. We prioritize meticulous work and client needs, while innovation drives our design solutions.',
+    values: ['Quality & Precision', 'Client-Centered Approach', 'Innovation in Design', 'Timely Delivery'],
+    whyTitle: 'Why Choose Siri Designs?', whyIntro: 'We are uniquely positioned for retail excellence. Our specialized focus ensures tailored solutions. We manage projects end to end, supported by an expert team.',
+    whyChoose: [
+      { title: 'Retail Specialization', body: 'Specialized in retail brand outlets inside malls. We understand unique retail challenges.' },
+      { title: 'End-to-End Solutions', body: 'From design to handover, we manage everything. A single point of contact for your project.' },
+      { title: 'Expert Team', body: 'A team of skilled architects, engineers, and project managers delivering top-tier quality.' },
+    ],
+    brandsTitle: 'Brands', locationsTitle: 'Retail Locations', brands: ['FEMI', 'ALURA', 'Bekky Barber', 'Vanilla', 'Dr. Nutrition', 'ALPHA', 'HIRA', 'Esharb', 'SUN & FUN', 'KEIRA'],
+    locations: ['Downtown', 'City Stars', 'Mall of Egypt', 'Marassi', 'Golden Square', 'San Stefano', 'Mall of Tanta', 'City Center Maadi', 'GENINA Mall', 'The Yard Mall'],
+    maintenanceTitle: 'Maintenance & Support', maintenanceIntro: 'Our commitment extends beyond project completion. We help keep retail spaces pristine, minimize downtime, and maximize appeal.',
+    maintenanceCards: [
+      { value: '45+', title: 'Stores Under Maintenance', body: 'Ensuring continuous operational excellence.' },
+      { value: 'Fast', title: 'Response Teams', body: 'Addressing issues promptly and efficiently.' },
+      { value: 'Scheduled', title: 'Preventive Maintenance', body: 'Proactive care to extend asset lifespan.' },
+    ],
+  },
+  ar: {
+    visionTitle: 'رؤيتنا ورسالتنا', visionLabel: 'رؤيتنا', missionLabel: 'رسالتنا', valuesTitle: 'قيمنا الأساسية',
+    vision: 'أن نكون الشريك الأول للحلول المتميزة في التصميم الداخلي لمساحات البيع بالتجزئة في مصر والمنطقة.',
+    mission: 'تقديم خدمات استثنائية في التصميم والتجهيز والتأثيث، بما يتوافق مع هوية العلامة التجارية ويضمن التميز التشغيلي.',
+    valuesIntro: 'توجّه قيمنا كل مشروع. نعطي الأولوية لدقة التنفيذ واحتياجات العملاء، ويقود الابتكار حلولنا التصميمية.',
+    values: ['الجودة والدقة', 'التركيز على العميل', 'الابتكار في التصميم', 'الالتزام بمواعيد التسليم'],
+    whyTitle: 'لماذا تختار Siri Designs؟', whyIntro: 'نتميز بتخصصنا في قطاع التجزئة، ونقدم حلولًا مصممة حسب الاحتياج، مع إدارة متكاملة للمشروع وفريق من الخبراء.',
+    whyChoose: [
+      { title: 'التخصص في قطاع التجزئة', body: 'نتخصص في تجهيز متاجر العلامات التجارية داخل المولات، وندرك التحديات الخاصة بهذا القطاع.' },
+      { title: 'حلول متكاملة من البداية للنهاية', body: 'نتولى جميع المراحل من التصميم حتى التسليم، مع نقطة اتصال واحدة لإدارة مشروعك.' },
+      { title: 'فريق من الخبراء', body: 'يضم فريقنا مهندسين معماريين ومهندسين ومديري مشروعات ذوي مهارة، لتقديم جودة عالية.' },
+    ],
+    brandsTitle: 'العلامات التجارية', locationsTitle: 'المراكز التجارية ومواقع المشروعات', brands: ['FEMI', 'ALURA', 'Bekky Barber', 'Vanilla', 'Dr. Nutrition', 'ALPHA', 'HIRA', 'Esharb', 'SUN & FUN', 'KEIRA'],
+    locations: ['Downtown', 'City Stars', 'Mall of Egypt', 'Marassi', 'Golden Square', 'San Stefano', 'Mall of Tanta', 'City Center Maadi', 'GENINA Mall', 'The Yard Mall'],
+    maintenanceTitle: 'الصيانة والدعم', maintenanceIntro: 'يمتد التزامنا إلى ما بعد تسليم المشروع. نقدم دعمًا وصيانة يحافظان على جاهزية المساحات التجارية، ويقللان فترات التوقف، ويحافظان على جاذبيتها.',
+    maintenanceCards: [
+      { value: '+45', title: 'متجرًا تحت الصيانة', body: 'لضمان استمرارية وكفاءة التشغيل.' },
+      { value: 'سريع', title: 'فرق الاستجابة', body: 'للتعامل مع المشكلات بسرعة وكفاءة.' },
+      { value: 'مجدولة', title: 'الصيانة الوقائية', body: 'رعاية استباقية لإطالة العمر الافتراضي للأصول.' },
+    ],
   },
 } as const;
 
@@ -66,6 +112,7 @@ export default function Home() {
 
   const t = copy[language];
   const isArabic = language === 'ar';
+  const profile = companyProfileCopy[language];
 
   useEffect(() => {
     try {
@@ -187,12 +234,14 @@ export default function Home() {
   }
 
   const aboutText = isArabic
-    ? (settings.about_ar || (settings.about && /[\u0600-\u06FF]/.test(settings.about) ? settings.about : 'نحوّل أفكارك إلى مساحات متوازنة تجمع بين الجمال والراحة والوظيفة. نهتم بكل خطوة، من فهم احتياجاتك وتطوير الفكرة إلى اختيار الخامات ومتابعة التنفيذ.'))
-    : (settings.about && !/[\u0600-\u06FF]/.test(settings.about) ? settings.about : 'We turn your ideas into balanced spaces where beauty, comfort, and function come together. From understanding your needs and shaping the concept to selecting materials and overseeing execution, every detail matters.');
-  const addressText = isArabic ? (settings.address_ar || settings.address || 'القاهرة، مصر') : (settings.address && !/[\u0600-\u06FF]/.test(settings.address) ? settings.address : 'Cairo, Egypt');
+    ? (settings.about_ar || (settings.about && /[\u0600-\u06FF]/.test(settings.about) ? settings.about : 'سيري ديزاينز شركة مصرية متخصصة في تقديم حلول متكاملة للتصميم الداخلي وتجهيز متاجر البيع بالتجزئة. نقدم نتائج عالية الجودة ومصممة حسب احتياجات كل عميل، ونتولى تنفيذ المشروعات الجاهزة للتشغيل للمتاجر ذات الهوية التجارية.'))
+    : (settings.about && !/[\u0600-\u06FF]/.test(settings.about) ? settings.about : 'Siri Designs is a premier Egyptian company specializing in comprehensive retail interior solutions. We deliver high-quality, tailored results and turnkey projects for branded retail outlets.');
+  const addressText = isArabic ? (settings.address_ar || settings.address || 'الشيراتون، مصر الجديدة – خلف فندق هيلتون، القاهرة، مصر') : (settings.address && !/[\u0600-\u06FF]/.test(settings.address) ? settings.address : 'Sheraton, Heliopolis – Behind Hilton Hotel, Cairo, Egypt');
+  const contactEmail = settings.email || 'siri.design@outlook.com';
   const whatsapp = settings.whatsapp?.replace(/\D/g, '');
   const companyPhones = (Array.isArray(settings.phones) ? settings.phones : []).map((phone) => String(phone || '').trim()).filter(Boolean);
   if (!companyPhones.length && settings.phone?.trim()) companyPhones.push(settings.phone.trim());
+  if (!companyPhones.length) companyPhones.push('+2 0111 877 7569', '+2 0112 688 9843');
   const companyLocationUrl = safeExternalUrl(settings.location_url);
   const socialLinks: { name: string; url: string; short: string }[] = [];
   if (settings.facebook) socialLinks.push({ name: 'Facebook', url: settings.facebook, short: 'FB' });
@@ -208,7 +257,7 @@ export default function Home() {
           <span><b>Siri Designs</b><small>{isArabic ? 'تصميم داخلي · تشطيبات · ديكور' : 'INTERIOR · FINISHING · DECOR'}</small></span>
         </a>
         <nav className={menuOpen ? 'sd-links sd-links-open' : 'sd-links'} aria-label={isArabic ? 'القائمة الرئيسية' : 'Main navigation'}>
-          {t.nav.map((label, index) => <a key={index} href={['#about', '#services', '#projects', '#clients', '#contact'][index]} onClick={() => setMenuOpen(false)}>{label}</a>)}
+          {t.nav.map((label, index) => <a key={index} href={['#about', '#vision', '#services', '#projects', '#clients', '#contact'][index]} onClick={() => setMenuOpen(false)}>{label}</a>)}
         </nav>
         <div className="sd-nav-tools">
           <button className="sd-language-toggle" type="button" onClick={() => setLanguage(isArabic ? 'en' : 'ar')} aria-label="Switch language">{t.language}</button>
@@ -251,6 +300,18 @@ export default function Home() {
       </div>
     </section>
 
+    <section id="vision" className="sd-profile-section sd-section">
+      <div className="sd-container">
+        <div className="sd-section-top sd-reveal"><span className="sd-index">02 / {isArabic ? 'رؤيتنا وقيمنا' : 'OUR DIRECTION'}</span><span className="sd-section-aside">{profile.visionTitle}</span></div>
+        <div className="sd-vm-grid">
+          <article className="sd-vm-card sd-reveal"><span className="sd-mini-label">{profile.visionLabel}</span><h3>{profile.vision}</h3></article>
+          <article className="sd-vm-card sd-vm-card-accent sd-reveal"><span className="sd-mini-label">{profile.missionLabel}</span><h3>{profile.mission}</h3></article>
+        </div>
+        <div className="sd-values-head sd-reveal"><div><span className="sd-mini-label">SIRI DESIGNS</span><h2>{profile.valuesTitle}</h2></div><p>{profile.valuesIntro}</p></div>
+        <div className="sd-values-grid">{profile.values.map((value, index) => <article className="sd-value-card sd-reveal" key={index}><b>{String(index + 1).padStart(2, '0')}</b><span>{value}</span></article>)}</div>
+      </div>
+    </section>
+
     <section id="services" className="sd-services sd-section">
       <div className="sd-container">
         <div className="sd-section-top sd-reveal"><span className="sd-index">{t.servicesIndex}</span><span className="sd-section-aside">{t.servicesAside}</span></div>
@@ -259,6 +320,14 @@ export default function Home() {
           <div className="sd-service-image" style={{ backgroundImage: `url("${service.imageUrl || defaultMedia.about}")` }}><span className="sd-service-tag">{isArabic ? service.tagAr || service.tagEn : service.tagEn || service.tagAr}</span><span className="sd-service-no">{String(index + 1).padStart(2, '0')}</span></div>
           <div className="sd-service-info"><h3>{isArabic ? service.nameAr || service.nameEn : service.nameEn || service.nameAr}</h3><p>{isArabic ? service.descAr || service.descEn : service.descEn || service.descAr}</p><a href="#request" aria-label={`${t.exploreService}: ${isArabic ? service.nameAr : service.nameEn}`}>{t.exploreService} <span>↙</span></a></div>
         </article>)}</div>
+      </div>
+    </section>
+
+    <section className="sd-why-section sd-section" id="why-siri">
+      <div className="sd-container">
+        <div className="sd-section-top sd-reveal"><span className="sd-index">WHY SIRI DESIGNS</span><span className="sd-section-aside">{profile.whyTitle}</span></div>
+        <div className="sd-why-heading sd-reveal"><h2>{profile.whyTitle}</h2><p>{profile.whyIntro}</p></div>
+        <div className="sd-why-grid">{profile.whyChoose.map((item, index) => <article className="sd-why-card sd-reveal" key={index}><span>{String(index + 1).padStart(2, '0')}</span><h3>{item.title}</h3><p>{item.body}</p></article>)}</div>
       </div>
     </section>
 
@@ -279,6 +348,18 @@ export default function Home() {
         <div className="sd-section-top sd-reveal"><span className="sd-index">{t.clientsIndex}</span><span className="sd-section-aside">{t.clientsAside}</span></div>
         <div className="sd-heading-row sd-reveal"><h2>{t.clientsHeading1}<br/><em>{t.clientsHeading2}</em></h2><p>{t.clientsIntro}</p></div>
         {clients.length ? <div className="sd-client-row">{clients.map((c) => <article className="sd-client-card sd-reveal" key={c.id}>{c.logo_url ? <img src={c.logo_url} alt={c.name} loading="lazy"/> : <b>{c.name}</b>}{c.logo_url && <span>{c.name}</span>}{c.note && <small>{c.note}</small>}</article>)}</div> : <div className="sd-client-note sd-reveal"><span>✳</span> {t.clientsEmpty}</div>}
+        <div className="sd-market-grid">
+          <div className="sd-market-panel sd-reveal"><span className="sd-mini-label">{profile.brandsTitle}</span><div className="sd-market-tags">{profile.brands.map((brand) => <span key={brand}>{brand}</span>)}</div></div>
+          <div className="sd-market-panel sd-reveal"><span className="sd-mini-label">{profile.locationsTitle}</span><div className="sd-market-tags">{profile.locations.map((location) => <span key={location}>{location}</span>)}</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section className="sd-maintenance-section sd-section" id="maintenance">
+      <div className="sd-container">
+        <div className="sd-section-top sd-reveal"><span className="sd-index">06 / AFTER HANDOVER</span><span className="sd-section-aside">{profile.maintenanceTitle}</span></div>
+        <div className="sd-maintenance-heading sd-reveal"><h2>{profile.maintenanceTitle}</h2><p>{profile.maintenanceIntro}</p></div>
+        <div className="sd-maintenance-grid">{profile.maintenanceCards.map((item, index) => <article className="sd-maintenance-card sd-reveal" key={index}><b>{item.value}</b><h3>{item.title}</h3><p>{item.body}</p></article>)}</div>
       </div>
     </section>
 
@@ -291,7 +372,7 @@ export default function Home() {
           <div className="sd-contact-copy sd-reveal"><span className="sd-mini-label">{t.contactKicker}</span><h2>{t.contactTitle1}<br/><em>{t.contactTitle2}</em></h2><p>{t.contactBody}</p>
             <div className="sd-direct-contact"><span>{t.direct}</span>
               {companyPhones.length ? companyPhones.map((phone, index) => <a key={`${phone}-${index}`} href={`tel:${phone.replace(/[^+\d]/g, '')}`}>{phone}</a>) : <b>{t.addPhone}</b>}
-              {settings.email && <a href={`mailto:${settings.email}`}>{settings.email}</a>}{addressText && <small>{addressText}</small>}
+              {contactEmail && <a href={`mailto:${contactEmail}`}>{contactEmail}</a>}{addressText && <small>{addressText}</small>}
               {companyLocationUrl && <a href={companyLocationUrl} target="_blank" rel="noopener noreferrer">{t.viewLocation} ↗</a>}
             </div>
           </div>
@@ -310,8 +391,8 @@ export default function Home() {
 
     <footer className="sd-footer" id="contact"><div className="sd-container"><div className="sd-footer-main">
       <div className="sd-footer-brand">{siteMedia.logo && siteMedia.logo !== '/logo.png' ? <img src={siteMedia.logo} alt="Siri Designs"/> : <Image src="/logo.png" alt="Siri Designs" width={100} height={88}/>}<b>Siri Designs</b><p>{t.footerTag}</p></div>
-      <div><h4>{t.exploreFooter}</h4><a href="#about">{t.nav[0]}</a><a href="#services">{t.nav[1]}</a><a href="#projects">{t.nav[2]}</a><a href="#clients">{t.nav[3]}</a></div>
-      <div><h4>{t.contactFooter}</h4>{companyPhones.map((phone, index) => <a key={`${phone}-${index}`} href={`tel:${phone.replace(/[^+\d]/g, '')}`}>{phone}</a>)}{settings.email && <a href={`mailto:${settings.email}`}>{settings.email}</a>}<p>{addressText}</p>{companyLocationUrl && <a href={companyLocationUrl} target="_blank" rel="noopener noreferrer">{t.viewLocation} ↗</a>}</div>
+      <div><h4>{t.exploreFooter}</h4><a href="#about">{t.nav[0]}</a><a href="#vision">{t.nav[1]}</a><a href="#services">{t.nav[2]}</a><a href="#projects">{t.nav[3]}</a><a href="#clients">{t.nav[4]}</a></div>
+      <div><h4>{t.contactFooter}</h4>{companyPhones.map((phone, index) => <a key={`${phone}-${index}`} href={`tel:${phone.replace(/[^+\d]/g, '')}`}>{phone}</a>)}{contactEmail && <a href={`mailto:${contactEmail}`}>{contactEmail}</a>}<p>{addressText}</p>{companyLocationUrl && <a href={companyLocationUrl} target="_blank" rel="noopener noreferrer">{t.viewLocation} ↗</a>}</div>
       <div><h4>{t.follow}</h4>{socialLinks.map(({ name, url, short }) => <a className="sd-social-link" key={name} href={url} target="_blank" rel="noreferrer"><span>{short}</span>{name} ↗</a>)}{whatsapp && <a className="sd-social-link" href={`https://wa.me/${whatsapp}`} target="_blank" rel="noreferrer"><span>WA</span>{t.whatsapp} ↗</a>}{!socialLinks.length && !whatsapp && <p>{t.noSocial}</p>}</div>
     </div><div className="sd-footer-bottom"><span>© {new Date().getFullYear()} Siri Designs. {t.allRights}</span><span>Designed by <b>Tech Relation</b></span></div></div></footer>
     {whatsapp && <a className="sd-whatsapp" href={`https://wa.me/${whatsapp}`} target="_blank" rel="noreferrer" aria-label={isArabic ? 'تواصل معنا عبر واتساب' : 'Contact us on WhatsApp'}><span>{t.whatsapp}</span><b>↗</b></a>}
