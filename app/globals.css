@@ -244,3 +244,38 @@ th { text-align: left; }
 .project-admin-row img{width:58px;height:54px;object-fit:cover;flex-shrink:0}
 .project-admin-row small[dir="rtl"]{display:block;text-align:right;color:var(--muted)}
 @media(max-width:900px){.media-admin-row{grid-template-columns:1fr!important}.dash-two{grid-template-columns:1fr!important}}
+
+
+/* Siri Designs — immersive image-led About section */
+.sd-about.sd-section{padding:0;background:#102a29}
+.sd-about-backdrop{position:relative;isolation:isolate;overflow:hidden;padding:clamp(76px,9vw,118px) 0 clamp(70px,8vw,104px);background:#102a29;color:#fff}
+.sd-about-photo{position:absolute;inset:0;z-index:-2;width:100%;max-width:none;height:100%;margin:0;overflow:hidden;background:#173331}
+.sd-about-photo img{width:100%;height:100%;display:block;object-fit:cover;object-position:center 48%;opacity:.64;transform:scale(1.045);animation:sdAboutKenBurns 28s ease-in-out infinite alternate;transition:filter .8s ease,transform 1s ease}
+.sd-about-backdrop::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(90deg,rgba(7,25,24,.91) 0%,rgba(7,25,24,.82) 46%,rgba(7,25,24,.72) 100%),linear-gradient(0deg,rgba(5,20,19,.68),rgba(5,20,19,.08) 60%,rgba(5,20,19,.24))}
+.sd-about-backdrop::after{content:"";position:absolute;z-index:0;pointer-events:none;width:min(42vw,560px);height:min(42vw,560px);right:-9%;top:-25%;border:1px solid rgba(159,218,207,.22);border-radius:50%;box-shadow:0 0 0 42px rgba(159,218,207,.035),0 0 0 90px rgba(159,218,207,.025);animation:sdAboutOrbit 22s ease-in-out infinite alternate}
+.sd-about-content-wrap{position:relative;z-index:1}
+.sd-about-backdrop .sd-section-top{border-color:rgba(255,255,255,.25)}
+.sd-about-backdrop .sd-index{color:#b5ddd2}
+.sd-about-backdrop .sd-section-aside{color:rgba(255,255,255,.72)}
+.sd-about-backdrop .sd-mini-label{color:#b7ded2}
+.sd-about-grid{grid-template-columns:1.05fr .85fr;gap:clamp(35px,7vw,110px);padding:clamp(48px,6.5vw,82px) 0 clamp(55px,6.5vw,82px);align-items:center}
+.sd-about-backdrop .sd-about-title h2{color:#fff;text-shadow:0 5px 30px rgba(0,0,0,.16)}
+.sd-about-backdrop .sd-about-title h2 em{color:#a9d9cb}
+.sd-about-backdrop .sd-about-content{max-width:520px;padding:clamp(24px,3vw,38px);border:1px solid rgba(255,255,255,.22);background:rgba(7,31,29,.36);backdrop-filter:blur(11px);-webkit-backdrop-filter:blur(11px);box-shadow:0 24px 70px rgba(0,0,0,.18)}
+.sd-about-backdrop .sd-about-content>p{color:rgba(255,255,255,.91);font-size:clamp(14px,1.15vw,16px);line-height:2.05}
+.sd-about-backdrop .sd-about-content .sd-about-sub{color:rgba(235,246,240,.72);font-size:12px}
+.sd-about-backdrop .sd-underlink{color:#e4f4ec;border-color:rgba(190,229,214,.55)}
+.sd-about-backdrop .sd-underlink:hover{color:#a9d9cb;border-color:#a9d9cb}
+.sd-about-backdrop .sd-about-stamp{position:static;margin-top:25px;color:rgba(230,245,237,.72)}
+.sd-about-backdrop .sd-about-stamp b{color:#a9d9cb}
+.sd-about-backdrop .sd-process{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;border:0}
+.sd-about-backdrop .sd-process>div{min-height:104px;display:flex;align-items:center;gap:13px;padding:19px 17px;border:1px solid rgba(255,255,255,.2)!important;background:rgba(8,31,29,.42);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:transform .35s ease,border-color .35s ease,background .35s ease}
+.sd-about-backdrop .sd-process>div:hover{transform:translateY(-6px);border-color:rgba(169,217,203,.68)!important;background:rgba(13,62,55,.58)}
+.sd-about-backdrop .sd-process b{flex:0 0 auto;color:#b2dfcf;font-size:24px}
+.sd-about-backdrop .sd-process span{color:rgba(255,255,255,.86);font-size:11px;line-height:1.7}
+.sd-about-backdrop .sd-reveal{transition:opacity .8s ease,transform .8s cubic-bezier(.2,.7,.2,1)}
+@keyframes sdAboutKenBurns{from{transform:scale(1.045) translate3d(-.4%,0,0)}to{transform:scale(1.13) translate3d(.7%,-.5%,0)}}
+@keyframes sdAboutOrbit{from{transform:translate3d(0,0,0) rotate(0deg)}to{transform:translate3d(-28px,24px,0) rotate(10deg)}}
+@media(max-width:900px){.sd-about-grid{grid-template-columns:1fr;gap:28px}.sd-about-backdrop .sd-about-content{max-width:660px}.sd-about-backdrop .sd-process{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.sd-about-backdrop{padding:75px 0 70px}.sd-about-photo img{object-position:55% center;opacity:.58}.sd-about-backdrop::before{background:linear-gradient(90deg,rgba(7,25,24,.88),rgba(7,25,24,.77)),linear-gradient(0deg,rgba(5,20,19,.65),transparent 72%)}.sd-about-grid{padding:42px 0 35px;gap:24px}.sd-about-backdrop .sd-about-title h2{font-size:clamp(39px,10vw,57px);line-height:1.2}.sd-about-backdrop .sd-about-content{padding:22px 19px}.sd-about-backdrop .sd-about-content>p{font-size:13px}.sd-about-backdrop .sd-process{gap:8px}.sd-about-backdrop .sd-process>div{min-height:92px;padding:13px 11px;gap:9px}.sd-about-backdrop .sd-process b{font-size:20px}.sd-about-backdrop .sd-process span{font-size:9px}.sd-about-backdrop::after{width:270px;height:270px;right:-24%;top:-8%}}
+@media(prefers-reduced-motion:reduce){.sd-about-photo img,.sd-about-backdrop::after{animation:none!important}.sd-about-backdrop .sd-process>div{transition:none!important}}

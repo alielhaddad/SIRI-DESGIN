@@ -238,14 +238,16 @@ export default function Home() {
     <div className="sd-marquee" aria-label="Siri Designs services"><div className="sd-marquee-track">{Array.from({ length: 2 }).map((_, i) => <span key={i}>{t.marquee.map((item, index) => <span key={`${i}-${index}`}>{item} <b>✳</b> </span>)}</span>)}</div></div>
 
     <section className="sd-about sd-section" id="about">
-      <div className="sd-container">
-        <div className="sd-section-top sd-reveal"><span className="sd-index">{t.aboutIndex}</span><span className="sd-section-aside">{t.aboutAside}</span></div>
-        <div className="sd-about-grid">
-          <div className="sd-about-title sd-reveal"><span className="sd-mini-label">{t.approach}</span><h2>{t.aboutTitle1}<br/>{t.aboutTitle2}<br/><em>{t.aboutTitle3}</em></h2></div>
-          <div className="sd-about-content sd-reveal"><p>{aboutText}</p><p className="sd-about-sub">{t.aboutSub}</p><a href="#contact" className="sd-underlink">{t.discover} <span>↙</span></a><div className="sd-about-stamp"><b>S</b><span>{isArabic ? <>التفاصيل<br/>تصنع الفرق</> : <>DETAILS<br/>MATTER</>}</span></div></div>
+      <div className="sd-about-backdrop">
+        {siteMedia.about && <div className="sd-about-photo" aria-hidden="true"><img src={siteMedia.about} alt="" loading="lazy"/></div>}
+        <div className="sd-container sd-about-content-wrap">
+          <div className="sd-section-top sd-reveal"><span className="sd-index">{t.aboutIndex}</span><span className="sd-section-aside">{t.aboutAside}</span></div>
+          <div className="sd-about-grid">
+            <div className="sd-about-title sd-reveal"><span className="sd-mini-label">{t.approach}</span><h2>{t.aboutTitle1}<br/>{t.aboutTitle2}<br/><em>{t.aboutTitle3}</em></h2></div>
+            <div className="sd-about-content sd-reveal"><p>{aboutText}</p><p className="sd-about-sub">{t.aboutSub}</p><a href="#contact" className="sd-underlink">{t.discover} <span>↙</span></a><div className="sd-about-stamp"><b>S</b><span>{isArabic ? <>التفاصيل<br/>تصنع الفرق</> : <>DETAILS<br/>MATTER</>}</span></div></div>
+          </div>
+          <div className="sd-process sd-reveal">{t.process.map((item, index) => <div key={index}><b>{String(index + 1).padStart(2, '0')}</b><span>{item}</span></div>)}</div>
         </div>
-        {siteMedia.about && <div className="sd-about-photo sd-reveal"><img src={siteMedia.about} alt={isArabic ? 'صورة من أعمال سيري ديزاينز' : 'Siri Designs featured interior'} loading="lazy"/></div>}
-        <div className="sd-process sd-reveal">{t.process.map((item, index) => <div key={index}><b>{String(index + 1).padStart(2, '0')}</b><span>{item}</span></div>)}</div>
       </div>
     </section>
 
