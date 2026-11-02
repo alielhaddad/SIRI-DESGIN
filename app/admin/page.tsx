@@ -8,8 +8,9 @@ type Project = { id: string; title: string; title_ar: string; category: string; 
 type Client = { id: string; name: string; logo_url: string; note: string; active: boolean };
 type Lead = { id: string; name: string; phone: string; email: string; service: string; budget: string; details: string; status: string; created_at: string };
 type Service = { id: string; nameEn: string; nameAr: string; descEn: string; descAr: string; imageUrl: string; tagEn: string; tagAr: string; active: boolean; sortOrder: number };
+type RetailLocation = { id: string; nameEn: string; nameAr: string; logoUrl: string; active: boolean; sortOrder: number };
 type SiteMedia = { hero: string; logo: string; about: string };
-type Settings = { phone: string; phones: string[]; whatsapp: string; email: string; address: string; address_ar: string; location_url: string; facebook: string; instagram: string; tiktok: string; linkedin: string; about: string; about_ar: string; services?: Service[]; site_media?: Partial<SiteMedia> };
+type Settings = { phone: string; phones: string[]; whatsapp: string; email: string; address: string; address_ar: string; location_url: string; facebook: string; instagram: string; tiktok: string; linkedin: string; about: string; about_ar: string; services?: Service[]; retail_locations?: RetailLocation[]; site_media?: Partial<SiteMedia> };
 const blankProject: Omit<Project, 'id'> = { title: '', title_ar: '', category: 'Complete Fit-Out', category_ar: '', location: '', image_url: '', description: '', description_ar: '', published: true };
 const blankClient: Omit<Client, 'id'> = { name: '', logo_url: '', note: '', active: true };
 const blankSettings: Settings = { phone: '', phones: [''], whatsapp: '', email: '', address: '', address_ar: '', location_url: '', facebook: '', instagram: '', tiktok: '', linkedin: '', about: '', about_ar: '' };
@@ -22,6 +23,19 @@ const defaultServices: Service[] = [
   { id: 'consulting-project-management', nameEn: 'Consulting & Project Management', nameAr: 'الاستشارات وإدارة المشروعات', descEn: 'Project supervision, budgeting, and ISO compliance support from concept through delivery.', descAr: 'الإشراف على المشروعات وإعداد الميزانيات ودعم التوافق مع معايير ISO من بداية الفكرة حتى التسليم.', imageUrl: '/projects/fitout-lighting-progress.webp', tagEn: 'PROJECT MANAGEMENT', tagAr: 'إدارة المشروعات', active: true, sortOrder: 5 },
 ];
 const blankService: Service = { id: '', nameEn: '', nameAr: '', descEn: '', descAr: '', imageUrl: '', tagEn: 'SERVICE', tagAr: 'خدمة', active: true, sortOrder: 1 };
+const blankLocation: RetailLocation = { id: '', nameEn: '', nameAr: '', logoUrl: '', active: true, sortOrder: 1 };
+const defaultRetailLocations: RetailLocation[] = [
+  { id: 'downtown', nameEn: 'Downtown', nameAr: 'داون تاون', logoUrl: '', active: true, sortOrder: 1 },
+  { id: 'city-stars', nameEn: 'City Stars', nameAr: 'سيتي ستارز', logoUrl: '', active: true, sortOrder: 2 },
+  { id: 'mall-of-egypt', nameEn: 'Mall of Egypt', nameAr: 'مول مصر', logoUrl: '', active: true, sortOrder: 3 },
+  { id: 'marassi', nameEn: 'Marassi', nameAr: 'مراسي', logoUrl: '', active: true, sortOrder: 4 },
+  { id: 'golden-square', nameEn: 'Golden Square', nameAr: 'جولدن سكوير', logoUrl: '', active: true, sortOrder: 5 },
+  { id: 'san-stefano', nameEn: 'San Stefano', nameAr: 'سان ستيفانو', logoUrl: '', active: true, sortOrder: 6 },
+  { id: 'mall-of-tanta', nameEn: 'Mall of Tanta', nameAr: 'مول طنطا', logoUrl: '', active: true, sortOrder: 7 },
+  { id: 'city-center-maadi', nameEn: 'City Center Maadi', nameAr: 'سيتي سنتر المعادي', logoUrl: '', active: true, sortOrder: 8 },
+  { id: 'genina-mall', nameEn: 'GENINA Mall', nameAr: 'جنينة مول', logoUrl: '', active: true, sortOrder: 9 },
+  { id: 'the-yard-mall', nameEn: 'The Yard Mall', nameAr: 'ذا يارد مول', logoUrl: '', active: true, sortOrder: 10 },
+];
 
 // Accept both public-folder paths (e.g. /projects/photo.webp) and full image URLs.
 function normalizeImagePath(value: string) {
@@ -34,13 +48,15 @@ function normalizeImagePath(value: string) {
 export default function Admin() {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<'requests' | 'projects' | 'clients' | 'services' | 'media' | 'settings'>('requests');
+  const [tab, setTab] = useState<'requests' | 'projects' | 'clients' | 'services' | 'locations' | 'media' | 'settings'>('requests');
   const [projects, setProjects] = useState<Project[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [settings, setSettings] = useState<Settings>(blankSettings);
   const [services, setServices] = useState<Service[]>(defaultServices);
   const [serviceDraft, setServiceDraft] = useState<Service>(blankService);
+  const [retailLocations, setRetailLocations] = useState<RetailLocation[]>(defaultRetailLocations);
+  const [locationDraft, setLocationDraft] = useState<RetailLocation>(blankLocation);
   const [siteMedia, setSiteMedia] = useState<SiteMedia>(defaultSiteMedia);
   const [project, setProject] = useState<any>(blankProject);
   const [client, setClient] = useState<any>(blankClient);
@@ -74,8 +90,10 @@ export default function Admin() {
         ? stored.phones.map((value) => String(value || ''))
         : stored.phone ? [stored.phone] : [''];
       setSettings({ ...blankSettings, ...stored, phones: storedPhones.length ? storedPhones : [''] });
-      if (Array.isArray((stored as any).services)) setServices((stored as any).services);
+      if (Array.isArray(stored.services)) setServices(stored.services);
       else setServices(defaultServices);
+      if (Array.isArray(stored.retail_locations)) setRetailLocations(stored.retail_locations);
+      else setRetailLocations(defaultRetailLocations);
       setSiteMedia({ ...defaultSiteMedia, ...((stored as any).site_media || {}) });
     }
   }
@@ -87,7 +105,7 @@ export default function Admin() {
     if (authError) setError('Unable to sign in. Check your email address and password.');
   }
 
-  async function uploadImage(e: ChangeEvent<HTMLInputElement>, target: 'project' | 'client' | 'service' | 'hero' | 'logo' | 'about') {
+  async function uploadImage(e: ChangeEvent<HTMLInputElement>, target: 'project' | 'client' | 'service' | 'location' | 'hero' | 'logo' | 'about') {
     if (!supabase || !e.target.files?.[0]) return;
     const file = e.target.files[0];
     if (!file.type.startsWith('image/')) { setError('Please choose an image file.'); return; }
@@ -102,6 +120,7 @@ export default function Admin() {
       if (target === 'project') setProject((old: any) => ({ ...old, image_url: data.publicUrl }));
       else if (target === 'client') setClient((old: any) => ({ ...old, logo_url: data.publicUrl }));
       else if (target === 'service') setServiceDraft((old) => ({ ...old, imageUrl: data.publicUrl }));
+      else if (target === 'location') setLocationDraft((old) => ({ ...old, logoUrl: data.publicUrl }));
       else setSiteMedia((old) => ({ ...old, [target]: data.publicUrl }));
       setNotice('Image uploaded. Save the related content to publish it on the website.');
     }
@@ -152,7 +171,7 @@ export default function Admin() {
       }
     }
     const phones = (settings.phones || []).map((phone) => String(phone || '').trim()).filter(Boolean);
-    const settingsToSave = { ...settings, phones, phone: phones[0] || '', location_url: locationUrl, services, site_media: siteMedia };
+    const settingsToSave = { ...settings, phones, phone: phones[0] || '', location_url: locationUrl, services, retail_locations: retailLocations, site_media: siteMedia };
     const { error: saveError } = await supabase.from('site_settings').upsert({ id: 'main', value: settingsToSave });
     setSaving(false);
     if (saveError) setError('Could not save settings.');
@@ -190,7 +209,7 @@ export default function Admin() {
   async function saveServices() {
     if (!supabase) return;
     setSaving(true); setError('');
-    const value = { ...settings, services, site_media: siteMedia };
+    const value = { ...settings, services, retail_locations: retailLocations, site_media: siteMedia };
     const { error: saveError } = await supabase.from('site_settings').upsert({ id: 'main', value });
     setSaving(false);
     if (saveError) setError(`Could not save services: ${saveError.message}`);
@@ -200,11 +219,52 @@ export default function Admin() {
   async function saveSiteMedia() {
     if (!supabase) return;
     setSaving(true); setError('');
-    const value = { ...settings, services, site_media: siteMedia };
+    const value = { ...settings, services, retail_locations: retailLocations, site_media: siteMedia };
     const { error: saveError } = await supabase.from('site_settings').upsert({ id: 'main', value });
     setSaving(false);
     if (saveError) setError(`Could not save website images: ${saveError.message}`);
     else setNotice('Website images saved successfully.');
+  }
+
+  function saveLocationDraft(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const clean: RetailLocation = {
+      ...locationDraft,
+      id: locationDraft.id || `retail-location-${Date.now()}`,
+      nameEn: locationDraft.nameEn.trim(),
+      nameAr: locationDraft.nameAr.trim(),
+      logoUrl: normalizeImagePath(locationDraft.logoUrl),
+      sortOrder: Number(locationDraft.sortOrder) || retailLocations.length + 1,
+    };
+    if (!clean.nameEn || !clean.nameAr) { setError('Please enter the location name in both English and Arabic.'); return; }
+    setRetailLocations((old) => {
+      const exists = old.some((item) => item.id === clean.id);
+      return (exists ? old.map((item) => item.id === clean.id ? clean : item) : [...old, clean]).sort((a, b) => a.sortOrder - b.sortOrder);
+    });
+    setLocationDraft({ ...blankLocation, sortOrder: retailLocations.length + 2 });
+    setNotice('Retail location added to the changes list. Click Save Retail Locations to publish it.');
+  }
+
+  function editLocation(item: RetailLocation) {
+    setLocationDraft({ ...item });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function removeLocation(id: string) {
+    if (!window.confirm('Remove this retail location from the website?')) return;
+    setRetailLocations((old) => old.filter((item) => item.id !== id));
+    if (locationDraft.id === id) setLocationDraft(blankLocation);
+    setNotice('Retail location removed from the changes list. Click Save Retail Locations to publish it.');
+  }
+
+  async function saveRetailLocations() {
+    if (!supabase) return;
+    setSaving(true); setError('');
+    const value = { ...settings, services, retail_locations: retailLocations, site_media: siteMedia };
+    const { error: saveError } = await supabase.from('site_settings').upsert({ id: 'main', value });
+    setSaving(false);
+    if (saveError) setError(`Could not save retail locations: ${saveError.message}`);
+    else { setSettings(value); setNotice('Retail locations saved successfully. They are now updated on the website.'); }
   }
 
   function displayService(value: string) {
@@ -304,7 +364,7 @@ export default function Admin() {
     {error && <p className="form-error">{error}</p>}<button className="button primary submit" disabled={!supabase}>Sign In ↗</button>
   </form></main>;
 
-  const tabs = [ ['requests', 'Customer Requests', leads.filter(x => x.status === 'new').length], ['projects', 'Portfolio', projects.length], ['services', 'Services', services.length], ['media', 'Website Images', 0], ['clients', 'Clients', clients.length], ['settings', 'Company Settings', 0] ] as const;
+  const tabs = [ ['requests', 'Customer Requests', leads.filter(x => x.status === 'new').length], ['projects', 'Portfolio', projects.length], ['services', 'Services', services.length], ['locations', 'Retail Locations', retailLocations.length], ['media', 'Website Images', 0], ['clients', 'Clients', clients.length], ['settings', 'Company Settings', 0] ] as const;
   return <main className="dashboard"><aside className="sidebar"><a href="/" className="dash-brand"><Image src="/logo.png" alt="" width={62} height={55}/><span>SIRI <em>DESIGNS</em><small>ADMIN DASHBOARD</small></span></a>
     {tabs.map(([key, label, count]) => <button key={key} className={tab === key ? 'active' : ''} onClick={() => { setTab(key); setNotice(''); setError(''); }}>{label}{count > 0 && <b>{count}</b>}</button>)}
     <div className="sidebar-bottom"><a href="/">← View Website</a><button onClick={() => supabase?.auth.signOut()}>Sign Out</button></div>
@@ -334,6 +394,17 @@ export default function Admin() {
       <button className="button primary submit">{serviceDraft.id ? 'Update Service in List' : 'Add Service to List'}</button>
       <small className="field-help">Changes remain in this editor until you click Save Services.</small>
     </form></div><div className="dash-panel"><div className="panel-head"><h2>Services ({services.length})</h2><button type="button" onClick={() => void saveServices()} disabled={saving}>{saving ? 'Saving...' : 'Save Services'}</button></div>{!services.length ? <p className="empty-admin">No services. Add your first service.</p> : [...services].sort((a,b)=>a.sortOrder-b.sortOrder).map(item => <div className="project-admin-row" key={item.id}>{item.imageUrl && <img src={item.imageUrl} alt=""/>}<div><b>{item.nameEn}</b><small dir="rtl">{item.nameAr}</small><small>{item.active ? 'Visible on website' : 'Hidden from website'} · Order {item.sortOrder}</small></div><button type="button" onClick={() => editService(item)}>Edit</button><button type="button" className="danger" onClick={() => removeService(item.id)}>Delete</button></div>)}</div></div>}
+
+    {tab === 'locations' && <div className="dash-two"><div className="dash-panel"><div className="panel-head"><h2>{locationDraft.id ? 'Edit Retail Location' : 'Add Retail Location'}</h2><button type="button" onClick={() => setLocationDraft({ ...blankLocation, sortOrder: retailLocations.length + 1 })}>+ New</button></div><form className="dash-form" onSubmit={saveLocationDraft}>
+      <label>Location Name (English) *<input required value={locationDraft.nameEn} onChange={e => setLocationDraft(old => ({ ...old, nameEn: e.target.value }))}/></label>
+      <label>Location Name (Arabic) *<input required dir="rtl" value={locationDraft.nameAr} onChange={e => setLocationDraft(old => ({ ...old, nameAr: e.target.value }))}/></label>
+      <label>Location Logo<input type="file" accept="image/*" onChange={e => void uploadImage(e, 'location')}/><small className="field-help">Upload a mall or retail destination logo. Maximum size: 6 MB.</small></label>
+      {locationDraft.logoUrl && <img className="upload-preview client-preview" src={normalizeImagePath(locationDraft.logoUrl)} alt="Retail location logo preview"/>}
+      <label>Logo Path or URL<input type="text" inputMode="url" value={locationDraft.logoUrl} onChange={e => setLocationDraft(old => ({ ...old, logoUrl: e.target.value }))} placeholder="/locations/logo.webp or https://..."/></label>
+      <label>Display Order<input type="number" min="1" value={locationDraft.sortOrder} onChange={e => setLocationDraft(old => ({ ...old, sortOrder: Number(e.target.value) }))}/></label>
+      <label className="check-label"><input type="checkbox" checked={locationDraft.active} onChange={e => setLocationDraft(old => ({ ...old, active: e.target.checked }))}/> Show location on website</label>
+      <button className="button primary submit">{locationDraft.id ? 'Update Location in List' : 'Add Location to List'}</button><small className="field-help">Changes remain in this editor until you click Save Retail Locations.</small>
+    </form></div><div className="dash-panel"><div className="panel-head"><h2>Retail Locations ({retailLocations.length})</h2><button type="button" onClick={() => void saveRetailLocations()} disabled={saving}>{saving ? 'Saving...' : 'Save Retail Locations'}</button></div>{!retailLocations.length ? <p className="empty-admin">No retail locations have been added.</p> : [...retailLocations].sort((a,b)=>a.sortOrder-b.sortOrder).map(item => <div className="project-admin-row" key={item.id}>{item.logoUrl && <img src={item.logoUrl} alt=""/>}<div><b>{item.nameEn}</b><small dir="rtl">{item.nameAr}</small><small>{item.active ? 'Visible on website' : 'Hidden from website'} · Order {item.sortOrder}</small></div><button type="button" onClick={() => editLocation(item)}>Edit</button><button type="button" className="danger" onClick={() => removeLocation(item.id)}>Delete</button></div>)}</div></div>}
 
     {tab === 'media' && <div className="dash-panel settings-form"><h2>Website Images</h2><p>Manage the main visual images used across the public website. Project images, client logos, and service images are managed in their own sections.</p>
       {([['hero', 'Main Hero Image', 'The large background image at the top of the homepage.'], ['about', 'About Section Image', 'The featured image displayed in the About section.'], ['logo', 'Website Logo', 'The logo displayed in the header and footer.']] as const).map(([key, label, help]) => <div key={key} className="media-admin-row" style={{ display: 'grid', gridTemplateColumns: 'minmax(180px, 260px) minmax(220px, 1fr)', gap: 18, alignItems: 'center', padding: '18px 0', borderBottom: '1px solid var(--line)' }}>

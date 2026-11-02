@@ -6,9 +6,10 @@ import { supabase } from '@/lib/supabase';
 
 type Project = { id: string; title: string; title_ar?: string; category?: string; category_ar?: string; location?: string; image_url?: string; description?: string; description_ar?: string };
 type Client = { id: string; name: string; logo_url?: string; note?: string };
+type RetailLocation = { id: string; nameEn: string; nameAr: string; logoUrl: string; active: boolean; sortOrder: number };
 type Service = { id: string; nameEn: string; nameAr: string; descEn: string; descAr: string; imageUrl: string; tagEn: string; tagAr: string; active: boolean; sortOrder: number };
 type SiteMedia = { hero: string; logo: string; about: string };
-type Settings = { phone?: string; phones?: string[]; whatsapp?: string; email?: string; address?: string; address_ar?: string; location_url?: string; facebook?: string; instagram?: string; tiktok?: string; linkedin?: string; about?: string; about_ar?: string; services?: Service[]; site_media?: Partial<SiteMedia> };
+type Settings = { phone?: string; phones?: string[]; whatsapp?: string; email?: string; address?: string; address_ar?: string; location_url?: string; facebook?: string; instagram?: string; tiktok?: string; linkedin?: string; about?: string; about_ar?: string; services?: Service[]; retail_locations?: RetailLocation[]; site_media?: Partial<SiteMedia> };
 
 type Language = 'en' | 'ar';
 type Theme = 'light' | 'dark';
@@ -18,6 +19,19 @@ const defaultMedia: SiteMedia = {
   logo: '/logo.png',
   about: '/projects/dnp-interior.webp',
 };
+
+const defaultRetailLocations: RetailLocation[] = [
+  { id: 'downtown', nameEn: 'Downtown', nameAr: 'داون تاون', logoUrl: '', active: true, sortOrder: 1 },
+  { id: 'city-stars', nameEn: 'City Stars', nameAr: 'سيتي ستارز', logoUrl: '', active: true, sortOrder: 2 },
+  { id: 'mall-of-egypt', nameEn: 'Mall of Egypt', nameAr: 'مول مصر', logoUrl: '', active: true, sortOrder: 3 },
+  { id: 'marassi', nameEn: 'Marassi', nameAr: 'مراسي', logoUrl: '', active: true, sortOrder: 4 },
+  { id: 'golden-square', nameEn: 'Golden Square', nameAr: 'جولدن سكوير', logoUrl: '', active: true, sortOrder: 5 },
+  { id: 'san-stefano', nameEn: 'San Stefano', nameAr: 'سان ستيفانو', logoUrl: '', active: true, sortOrder: 6 },
+  { id: 'mall-of-tanta', nameEn: 'Mall of Tanta', nameAr: 'مول طنطا', logoUrl: '', active: true, sortOrder: 7 },
+  { id: 'city-center-maadi', nameEn: 'City Center Maadi', nameAr: 'سيتي سنتر المعادي', logoUrl: '', active: true, sortOrder: 8 },
+  { id: 'genina-mall', nameEn: 'GENINA Mall', nameAr: 'جنينة مول', logoUrl: '', active: true, sortOrder: 9 },
+  { id: 'the-yard-mall', nameEn: 'The Yard Mall', nameAr: 'ذا يارد مول', logoUrl: '', active: true, sortOrder: 10 },
+];
 
 const defaultServices: Service[] = [
   { id: 'interior-design', nameEn: 'Interior Design', nameAr: 'التصميم الداخلي', descEn: 'Concept development, space planning, and 3D visualization tailored to each retail brand.', descAr: 'تطوير الفكرة وتخطيط المساحات والتصور ثلاثي الأبعاد بما يتناسب مع هوية كل علامة تجارية.', imageUrl: '/projects/dnp-interior.webp', tagEn: 'DESIGN', tagAr: 'تصميم', active: true, sortOrder: 1 },
@@ -33,7 +47,7 @@ const copy = {
     aboutIndex: '01 / ABOUT US', aboutAside: 'OUR DESIGN PHILOSOPHY', approach: 'THE SIRI APPROACH', aboutTitle1: 'Retail spaces,', aboutTitle2: 'designed around', aboutTitle3: 'your brand.', aboutSub: 'We deliver turnkey projects for branded retail outlets, with high-quality results tailored to each client.', discover: 'Discover Our Approach', process: ['We listen and understand your vision', 'We plan and design with care', 'We build and oversee every detail', 'We deliver a space you love'],
     servicesIndex: '03 / WHAT WE DO', servicesAside: 'Our Services', serviceHeading1: 'From the first', serviceHeading2: 'idea,', serviceHeading3: 'to the final detail.', servicesIntro: 'We offer end-to-end retail solutions, from initial concept to ongoing support. Our expertise covers every aspect of project delivery and maintenance.', exploreService: 'Explore Service',
     projectsIndex: '04 / SELECTED WORK', projectsAside: 'Selected Projects', projectsHeading1: 'Our work', projectsHeading2: 'speaks for itself.', projectsIntro: 'Every project is a new beginning, and every detail is part of a story worth seeing.', projectErrorTitle: 'Our projects are temporarily unavailable.', projectErrorText: 'Please try again shortly.', projectEmptyTitle: 'Our next stories start here.', projectEmptyText: 'Add projects, photos, and descriptions in the admin dashboard and they will appear here automatically.', becomeProject: 'Become Our Next Project', projectLabel: 'PROJECT',
-    clientsIndex: '05 / OUR CLIENTS', clientsAside: 'Clients & Partners', clientsHeading1: 'Trust is the foundation', clientsHeading2: 'of every space.', clientsIntro: 'We proudly partner with leading retail brands and deliver projects across prominent mall locations throughout the market.', clientsEmpty: 'Client names and logos will appear here once they are added in the admin dashboard.',
+    clientsIndex: '05 / OUR CLIENTS', clientsAside: 'Clients & Partners', clientsHeading1: 'Trust is the foundation', clientsHeading2: 'of every space.', clientsIntro: 'We proudly partner with leading retail brands and deliver projects across prominent mall locations throughout the market.', clientsEmpty: 'Client names and logos will appear here once they are added in the admin dashboard.', locationsEmpty: 'Retail locations will appear here once they are added in the admin dashboard.',
     philosophy: 'SIRI DESIGN PHILOSOPHY', quote1: 'We do not just design spaces', quote2: 'to be seen…', quote3: 'we design spaces to be felt.', quoteCta: "Let's Talk About Your Space",
     contactIndex: '07 / START A PROJECT', contactAside: 'Start a Project', contactKicker: "LET'S CREATE SOMETHING BEAUTIFUL", contactTitle1: 'Have an idea?', contactTitle2: 'We are ready.', contactBody: 'Tell us about the space you have in mind. Share a few project details and our team will get in touch to help you take the first step.', direct: 'Direct Contact', addPhone: 'Add your phone number in the admin dashboard', viewLocation: 'View Company Location', formKicker: 'PROJECT INQUIRY', formTitle: 'Tell Us About Your Project', fullName: 'Full Name', phone: 'Phone Number', email: 'Email Address', serviceRequired: 'Service Required', selectService: 'Select a service', other: 'Other', budget: 'Estimated Budget', optional: 'Optional', budgetOptions: ['Under EGP 100,000', 'EGP 100,000 – 300,000', 'EGP 300,000 – 700,000', 'Over EGP 700,000', 'Still to be determined'], details: 'Project Details', detailsPlaceholder: 'Space type, location, and anything else you would like to share...', submit: 'Submit Project Inquiry', submitting: 'Submitting your request...', privacy: 'Your information is secure and will only be used to follow up on your inquiry.', success: 'Your request has been submitted successfully. Thank you for choosing Siri Designs. Our team will contact you soon.', error: 'We could not submit your request. Please try again or contact us directly.', emailFailed: 'Your request was saved, but the email notification could not be sent. The request is still available in the admin dashboard.', emailMissing: 'Your request was saved. Email notifications are not configured yet.',
     footerTag: 'We design spaces that feel like you.', exploreFooter: 'Explore', contactFooter: 'Contact', follow: 'Follow Us', noSocial: 'Add social links in the admin dashboard', whatsapp: 'WhatsApp', allRights: 'All rights reserved.', language: 'العربية', light: 'Light mode', dark: 'Dark mode',
@@ -43,7 +57,7 @@ const copy = {
     aboutIndex: '01 / من نحن', aboutAside: 'فلسفتنا في التصميم', approach: 'منهج سيري', aboutTitle1: 'مساحات تجارية', aboutTitle2: 'تعكس هوية', aboutTitle3: 'علامتك.', aboutSub: 'ننفذ مشروعات متكاملة وجاهزة للتشغيل لمتاجر تحمل هويات تجارية مميزة، بجودة عالية وحلول مصممة حسب الاحتياج.', discover: 'اكتشف أسلوبنا', process: ['نستمع إليك ونفهم رؤيتك', 'نخطط ونصمم بعناية', 'ننّفذ ونتابع كل التفاصيل', 'نسلمك مساحة تحبها'],
     servicesIndex: '03 / ماذا نقدم', servicesAside: 'خدماتنا', serviceHeading1: 'من أول', serviceHeading2: 'فكرة،', serviceHeading3: 'حتى آخر تفصيلة.', servicesIntro: 'نقدم حلولًا متكاملة لمساحات البيع بالتجزئة، من الفكرة الأولى وحتى الدعم المستمر. تشمل خبراتنا مختلف مراحل التنفيذ والتجهيز والصيانة.', exploreService: 'اكتشف الخدمة',
     projectsIndex: '04 / أعمال مختارة', projectsAside: 'مشروعات مختارة', projectsHeading1: 'أعمالنا', projectsHeading2: 'تتحدث عن نفسها.', projectsIntro: 'كل مشروع بداية جديدة، وكل تفصيلة جزء من حكاية تستحق أن تُروى.', projectErrorTitle: 'مشروعاتنا غير متاحة مؤقتًا.', projectErrorText: 'حاول مرة أخرى بعد قليل.', projectEmptyTitle: 'حكايتنا القادمة تبدأ معك.', projectEmptyText: 'أضف المشروعات والصور والأوصاف من لوحة الإدارة لتظهر هنا تلقائيًا.', becomeProject: 'كن مشروعنا القادم', projectLabel: 'مشروع',
-    clientsIndex: '05 / عملاؤنا', clientsAside: 'العملاء والشركاء', clientsHeading1: 'الثقة هي أساس', clientsHeading2: 'كل مساحة ناجحة.', clientsIntro: 'نفخر بالشراكة مع علامات تجارية رائدة وتنفيذ المشروعات في عدد من أبرز المراكز التجارية والمولات.', clientsEmpty: 'ستظهر أسماء العملاء وشعاراتهم هنا بعد إضافتها من لوحة الإدارة.',
+    clientsIndex: '05 / عملاؤنا', clientsAside: 'العملاء والشركاء', clientsHeading1: 'الثقة هي أساس', clientsHeading2: 'كل مساحة ناجحة.', clientsIntro: 'نفخر بالشراكة مع علامات تجارية رائدة وتنفيذ المشروعات في عدد من أبرز المراكز التجارية والمولات.', clientsEmpty: 'ستظهر أسماء العملاء وشعاراتهم هنا بعد إضافتها من لوحة الإدارة.', locationsEmpty: 'ستظهر مواقع المشروعات هنا بعد إضافتها من لوحة الإدارة.',
     philosophy: 'فلسفة سيري ديزاينز', quote1: 'نحن لا نصمم مساحات', quote2: 'لتُرى فقط…', quote3: 'بل نصمم مساحات لتُشعَر.', quoteCta: 'لنتحدث عن مساحتك',
     contactIndex: '07 / ابدأ مشروعك', contactAside: 'ابدأ مشروعًا جديدًا', contactKicker: 'لنصنع شيئًا جميلًا معًا', contactTitle1: 'لديك فكرة؟', contactTitle2: 'نحن جاهزون.', contactBody: 'احكِ لنا عن المساحة التي تتخيلها. شاركنا بعض تفاصيل مشروعك وسيتواصل معك فريقنا لمساعدتك في أول خطوة.', direct: 'تواصل مباشر', addPhone: 'أضف رقم هاتفك من لوحة الإدارة', viewLocation: 'عرض موقع الشركة', formKicker: 'طلب مشروع جديد', formTitle: 'أخبرنا عن مشروعك', fullName: 'الاسم بالكامل', phone: 'رقم الهاتف', email: 'البريد الإلكتروني', serviceRequired: 'الخدمة المطلوبة', selectService: 'اختر الخدمة', other: 'أخرى', budget: 'الميزانية المتوقعة', optional: 'اختياري', budgetOptions: ['أقل من 100,000 جنيه', 'من 100,000 إلى 300,000 جنيه', 'من 300,000 إلى 700,000 جنيه', 'أكثر من 700,000 جنيه', 'لم يتم تحديدها بعد'], details: 'تفاصيل المشروع', detailsPlaceholder: 'نوع المساحة والموقع وأي تفاصيل أخرى تود مشاركتها...', submit: 'إرسال طلب المشروع', submitting: 'جارٍ إرسال طلبك...', privacy: 'بياناتك آمنة وستُستخدم فقط للتواصل معك بخصوص طلبك.', success: 'تم إرسال طلبك بنجاح. شكرًا لاختيارك Siri Designs، سيتواصل معك فريقنا قريبًا.', error: 'تعذر إرسال طلبك. حاول مرة أخرى أو تواصل معنا مباشرة.', emailFailed: 'تم حفظ طلبك، لكن تعذر إرسال إشعار البريد الإلكتروني. طلبك موجود في لوحة الإدارة.', emailMissing: 'تم حفظ طلبك. لم يتم إعداد إشعارات البريد الإلكتروني بعد.',
     footerTag: 'نصمم مساحات تشبهك.', exploreFooter: 'استكشف', contactFooter: 'تواصل معنا', follow: 'تابعنا', noSocial: 'أضف روابط التواصل الاجتماعي من لوحة الإدارة', whatsapp: 'واتساب', allRights: 'جميع الحقوق محفوظة.', language: 'English', light: 'الوضع الفاتح', dark: 'الوضع الداكن',
@@ -63,8 +77,7 @@ const companyProfileCopy = {
       { title: 'End-to-End Solutions', body: 'From design to handover, we manage everything. A single point of contact for your project.' },
       { title: 'Expert Team', body: 'A team of skilled architects, engineers, and project managers delivering top-tier quality.' },
     ],
-    brandsTitle: 'Brands', locationsTitle: 'Retail Locations', brands: ['FEMI', 'ALURA', 'Bekky Barber', 'Vanilla', 'Dr. Nutrition', 'ALPHA', 'HIRA', 'Esharb', 'SUN & FUN', 'KEIRA'],
-    locations: ['Downtown', 'City Stars', 'Mall of Egypt', 'Marassi', 'Golden Square', 'San Stefano', 'Mall of Tanta', 'City Center Maadi', 'GENINA Mall', 'The Yard Mall'],
+    locationsTitle: 'Retail Locations',
     maintenanceTitle: 'Maintenance & Support', maintenanceIntro: 'Our commitment extends beyond project completion. We help keep retail spaces pristine, minimize downtime, and maximize appeal.',
     maintenanceCards: [
       { value: '45+', title: 'Stores Under Maintenance', body: 'Ensuring continuous operational excellence.' },
@@ -84,8 +97,7 @@ const companyProfileCopy = {
       { title: 'حلول متكاملة من البداية للنهاية', body: 'نتولى جميع المراحل من التصميم حتى التسليم، مع نقطة اتصال واحدة لإدارة مشروعك.' },
       { title: 'فريق من الخبراء', body: 'يضم فريقنا مهندسين معماريين ومهندسين ومديري مشروعات ذوي مهارة، لتقديم جودة عالية.' },
     ],
-    brandsTitle: 'العلامات التجارية', locationsTitle: 'المراكز التجارية ومواقع المشروعات', brands: ['FEMI', 'ALURA', 'Bekky Barber', 'Vanilla', 'Dr. Nutrition', 'ALPHA', 'HIRA', 'Esharb', 'SUN & FUN', 'KEIRA'],
-    locations: ['Downtown', 'City Stars', 'Mall of Egypt', 'Marassi', 'Golden Square', 'San Stefano', 'Mall of Tanta', 'City Center Maadi', 'GENINA Mall', 'The Yard Mall'],
+    locationsTitle: 'المراكز التجارية ومواقع المشروعات',
     maintenanceTitle: 'الصيانة والدعم', maintenanceIntro: 'يمتد التزامنا إلى ما بعد تسليم المشروع. نقدم دعمًا وصيانة يحافظان على جاهزية المساحات التجارية، ويقللان فترات التوقف، ويحافظان على جاذبيتها.',
     maintenanceCards: [
       { value: '+45', title: 'متجرًا تحت الصيانة', body: 'لضمان استمرارية وكفاءة التشغيل.' },
@@ -99,6 +111,7 @@ export default function Home() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [portfolioLoadError, setPortfolioLoadError] = useState('');
   const [clients, setClients] = useState<Client[]>([]);
+  const [retailLocations, setRetailLocations] = useState<RetailLocation[]>(defaultRetailLocations);
   const [settings, setSettings] = useState<Settings>({});
   const [services, setServices] = useState<Service[]>(defaultServices);
   const [siteMedia, setSiteMedia] = useState<SiteMedia>(defaultMedia);
@@ -188,6 +201,7 @@ export default function Home() {
         const value = s.data.value as Settings;
         setSettings(value);
         if (Array.isArray(value.services)) setServices(value.services.filter((service) => service.active !== false).sort((a, b) => a.sortOrder - b.sortOrder));
+        if (Array.isArray(value.retail_locations)) setRetailLocations(value.retail_locations.filter((location) => location.active !== false).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)));
         if (value.site_media) setSiteMedia({ ...defaultMedia, ...value.site_media });
       }
     })();
@@ -348,9 +362,13 @@ export default function Home() {
         <div className="sd-section-top sd-reveal"><span className="sd-index">{t.clientsIndex}</span><span className="sd-section-aside">{t.clientsAside}</span></div>
         <div className="sd-heading-row sd-reveal"><h2>{t.clientsHeading1}<br/><em>{t.clientsHeading2}</em></h2><p>{t.clientsIntro}</p></div>
         {clients.length ? <div className="sd-client-row">{clients.map((c) => <article className="sd-client-card sd-reveal" key={c.id}>{c.logo_url ? <img src={c.logo_url} alt={c.name} loading="lazy"/> : <b>{c.name}</b>}{c.logo_url && <span>{c.name}</span>}{c.note && <small>{c.note}</small>}</article>)}</div> : <div className="sd-client-note sd-reveal"><span>✳</span> {t.clientsEmpty}</div>}
-        <div className="sd-market-grid">
-          <div className="sd-market-panel sd-reveal"><span className="sd-mini-label">{profile.brandsTitle}</span><div className="sd-market-tags">{profile.brands.map((brand) => <span key={brand}>{brand}</span>)}</div></div>
-          <div className="sd-market-panel sd-reveal"><span className="sd-mini-label">{profile.locationsTitle}</span><div className="sd-market-tags">{profile.locations.map((location) => <span key={location}>{location}</span>)}</div></div>
+        <div className="sd-market-grid sd-market-grid-single">
+          <div className="sd-market-panel sd-reveal"><div className="sd-location-heading"><span className="sd-mini-label">{profile.locationsTitle}</span><span className="sd-location-count">{retailLocations.filter((location) => location.active !== false).length.toString().padStart(2, '0')}</span></div>
+            {retailLocations.filter((location) => location.active !== false).sort((a, b) => a.sortOrder - b.sortOrder).length ? <div className="sd-location-grid">{retailLocations.filter((location) => location.active !== false).sort((a, b) => a.sortOrder - b.sortOrder).map((location) => <article className="sd-location-card" key={location.id}>
+              <div className="sd-location-logo">{location.logoUrl ? <img src={location.logoUrl} alt={`${isArabic ? location.nameAr || location.nameEn : location.nameEn} logo`} loading="lazy"/> : <span>SD</span>}</div>
+              <h3>{isArabic ? location.nameAr || location.nameEn : location.nameEn}</h3>
+            </article>)}</div> : <p className="sd-location-empty">{t.locationsEmpty}</p>}
+          </div>
         </div>
       </div>
     </section>
