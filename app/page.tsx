@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 
 type Project = { id: string; title: string; title_ar?: string; category?: string; category_ar?: string; location?: string; image_url?: string; description?: string; description_ar?: string };
 type Client = { id: string; name: string; logo_url?: string; note?: string };
-type RetailLocation = { id: string; nameEn: string; nameAr: string; logoUrl: string; active: boolean; sortOrder: number };
+type Our Projects in Shopping Malls = { id: string; nameEn: string; nameAr: string; logoUrl: string; active: boolean; sortOrder: number };
 type Service = { id: string; nameEn: string; nameAr: string; descEn: string; descAr: string; imageUrl: string; tagEn: string; tagAr: string; active: boolean; sortOrder: number };
 type SiteMedia = { hero: string; logo: string; about: string };
 type Settings = { phone?: string; phones?: string[]; whatsapp?: string; email?: string; address?: string; address_ar?: string; location_url?: string; facebook?: string; instagram?: string; tiktok?: string; linkedin?: string; about?: string; about_ar?: string; services?: Service[]; retail_locations?: RetailLocation[]; site_media?: Partial<SiteMedia> };
