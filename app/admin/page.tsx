@@ -275,15 +275,18 @@ export default function Admin() {
       nameAr: locationDraft.nameAr.trim(),
       logoUrl: normalizeImagePath(locationDraft.logoUrl),
       sortOrder: Number(locationDraft.sortOrder) || retailLocations.length + 1,
-      projects: (locationDraft.projects || []).map((item) => ({ ...item, id: item.id || `mall-project-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, nameEn: String(item.nameEn || '').trim(), nameAr: String(item.nameAr || '').trim(), brandNameEn: String(item.brandNameEn || '').trim(), brandNameAr: String(item.brandNameAr || '').trim(), brandLogoUrl: normalizeImagePath(item.brandLogoUrl || ''), imageUrl: normalizeImagePath(item.imageUrl || ''), descriptionEn: String(item.descriptionEn || '').trim(), descriptionAr: String(item.descriptionAr || '').trim() })).filter((item) => item.nameEn || item.nameAr || item.portfolioProjectId || item.brandNameEn || item.brandNameAr),
+      projects: (locationDraft.projects || []).map((item) => ({ ...item, id: item.id || `mall-project-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, nameEn: String(item.nameEn || '').trim(), nameAr: String(item.nameAr || '').trim(), brandNameEn: String(item.brandNameEn || '').trim(), brandNameAr: String(item.brandNameAr || '').trim(), brandLogoUrl: normalizeImagePath(item.brandLogoUrl || ''), imageUrl: normalizeImagePath(item.imageUrl || ''), descriptionEn: String(item.descriptionEn || '').trim(), descriptionAr: String(item.descriptionAr || '').trim() })).filter((item) => item.nameEn || item.nameAr || item.portfolioProjectId || item.brandNameEn || item.brandNameAr || item.brandLogoUrl || item.imageUrl || item.descriptionEn || item.descriptionAr),
     };
     if (!clean.nameEn || !clean.nameAr) { setError('Please enter the location name in both English and Arabic.'); return; }
     setRetailLocations((old) => {
       const exists = old.some((item) => item.id === clean.id);
       return (exists ? old.map((item) => item.id === clean.id ? clean : item) : [...old, clean]).sort((a, b) => a.sortOrder - b.sortOrder);
     });
-    setLocationDraft({ ...blankLocation, sortOrder: retailLocations.length + 2 });
-    setNotice('Mall and project names added to the changes list. Click Save Mall Projects to publish them.');
+    // Keep the same mall open after applying the draft. This lets the admin add
+    // another project and update the same mall without starting over or replacing
+    // the previous project's data.
+    setLocationDraft(clean);
+    setNotice(`Mall updated in the changes list with ${clean.projects?.length || 0} project(s). You can add another project now; click Save Mall Projects when finished.`);
   }
 
   function editLocation(item: RetailLocation) {
@@ -443,7 +446,7 @@ export default function Admin() {
       {locationDraft.logoUrl && <img className="upload-preview client-preview" src={normalizeImagePath(locationDraft.logoUrl)} alt="Mall logo preview"/>}
       <label>Logo Path or URL<input type="text" inputMode="url" value={locationDraft.logoUrl} onChange={e => setLocationDraft(old => ({ ...old, logoUrl: e.target.value }))} placeholder="/locations/logo.webp or https://..."/></label>
       <div className="mall-project-editor" style={{ borderTop: '1px solid var(--line)', marginTop: 8, paddingTop: 16 }}>
-        <div className="panel-head"><h3 style={{ margin: 0 }}>Projects Completed in This Mall</h3><button type="button" onClick={addMallProject}>+ Add Project</button></div>
+        <div className="panel-head"><div><h3 style={{ margin: 0 }}>Projects Completed in This Mall</h3><small className="field-help">Add as many projects as you need. Each one is saved as a separate card in this mall's gallery.</small></div><button type="button" onClick={addMallProject}>+ Add Another Project</button></div>
         {(locationDraft.projects || []).length === 0 && <p className="empty-admin">No projects added yet. Add a project and connect it to an existing portfolio item or brand.</p>}
         {(locationDraft.projects || []).map((item, index) => <div key={item.id} className="mall-project-editor-card" style={{ padding: '16px 0', borderBottom: '1px solid var(--line)' }}>
           <div className="panel-head"><b>Project {index + 1}</b><button type="button" className="danger" onClick={() => removeMallProject(item.id)}>Remove Project</button></div>
@@ -463,7 +466,7 @@ export default function Admin() {
       </div>
       <label>Display Order<input type="number" min="1" value={locationDraft.sortOrder} onChange={e => setLocationDraft(old => ({ ...old, sortOrder: Number(e.target.value) }))}/></label>
       <label className="check-label"><input type="checkbox" checked={locationDraft.active} onChange={e => setLocationDraft(old => ({ ...old, active: e.target.checked }))}/> Show mall and its projects on website</label>
-      <button className="button primary submit">{locationDraft.id ? 'Update Mall in List' : 'Add Mall to List'}</button><small className="field-help">Changes remain in this editor until you click Save Mall Projects.</small>
+      <button className="button primary submit">{locationDraft.id ? 'Update Mall & Keep Editing' : 'Add Mall to List & Keep Editing'}</button><small className="field-help">You can add multiple projects before or after this step. This button updates the mall in the changes list and keeps it open; use Save Mall Projects on the right to publish all mall changes to the website.</small>
     </form></div><div className="dash-panel"><div className="panel-head"><h2>Malls ({retailLocations.length})</h2><button type="button" onClick={() => void saveRetailLocations()} disabled={saving}>{saving ? 'Saving...' : 'Save Mall Projects'}</button></div>{!retailLocations.length ? <p className="empty-admin">No shopping malls have been added.</p> : [...retailLocations].sort((a,b)=>a.sortOrder-b.sortOrder).map(item => <div className="project-admin-row" key={item.id}>{item.logoUrl && <img src={item.logoUrl} alt=""/>}<div><b>{item.nameEn}</b><small dir="rtl">{item.nameAr}</small><small>{(item.projects || []).filter(project => project.nameEn || project.nameAr || project.portfolioProjectId || project.brandNameEn || project.brandNameAr).length} project(s) · {item.active ? 'Visible on website' : 'Hidden from website'} · Order {item.sortOrder}</small>{(item.projects || []).filter(project => project.nameEn || project.nameAr || project.brandNameEn || project.brandNameAr).slice(0, 4).map(project => <small key={project.id}>— {project.brandNameEn || project.brandNameAr ? `${project.brandNameEn || project.brandNameAr}: ` : ''}{project.nameEn || project.nameAr}</small>)}</div><button type="button" onClick={() => editLocation(item)}>Edit</button><button type="button" className="danger" onClick={() => removeLocation(item.id)}>Delete</button></div>)}</div></div>}
 
     {tab === 'media' && <div className="dash-panel settings-form"><h2>Website Images</h2><p>Manage the main visual images used across the public website. Project images, client logos, and service images are managed in their own sections.</p>

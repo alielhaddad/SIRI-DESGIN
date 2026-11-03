@@ -394,12 +394,15 @@ export default function Home() {
             if (!mallProjects.length) return <div className="sd-mall-modal-empty"><span>✳</span><p>{t.mallNoProjects}</p></div>;
             return <div className="sd-mall-detail-grid">{mallProjects.map((item, index) => {
               const linkedProject = projects.find((project) => project.id === item.portfolioProjectId);
-              const imageUrl = item.imageUrl || linkedProject?.image_url || '';
+              const projectPhotoUrl = item.imageUrl || linkedProject?.image_url || '';
+              // If no project photo was supplied, feature the brand logo as the main visual.
+              const imageUrl = projectPhotoUrl || item.brandLogoUrl || '';
+              const isBrandLogoFallback = !projectPhotoUrl && Boolean(item.brandLogoUrl);
               const brandName = isArabic ? item.brandNameAr || item.brandNameEn : item.brandNameEn || item.brandNameAr;
               const projectName = isArabic ? item.nameAr || linkedProject?.title_ar || item.nameEn || linkedProject?.title : item.nameEn || linkedProject?.title || item.nameAr;
               const description = isArabic ? item.descriptionAr || linkedProject?.description_ar || item.descriptionEn || linkedProject?.description : item.descriptionEn || linkedProject?.description || item.descriptionAr || linkedProject?.description_ar;
               return <article className="sd-mall-detail-card" key={item.id}>
-                {imageUrl ? <div className="sd-mall-detail-image"><img src={imageUrl} alt={projectName || brandName || (isArabic ? 'صورة المشروع' : 'Project image')} loading="lazy"/></div> : <div className="sd-mall-detail-image sd-mall-detail-placeholder"><span>SIRI / PROJECT</span></div>}
+                {imageUrl ? <div className={`sd-mall-detail-image${isBrandLogoFallback ? ' sd-mall-detail-image--logo-fallback' : ''}`}><img src={imageUrl} alt={isBrandLogoFallback ? `${brandName || projectName} logo` : (projectName || brandName || (isArabic ? 'صورة المشروع' : 'Project image'))} loading="lazy"/></div> : <div className="sd-mall-detail-image sd-mall-detail-placeholder"><span>SIRI / PROJECT</span></div>}
                 <div className="sd-mall-detail-copy">
                   {(brandName || item.brandLogoUrl) && <div className="sd-mall-brand-line">{item.brandLogoUrl && <img src={item.brandLogoUrl} alt=""/>}<span>{brandName || t.mallBrand}</span></div>}
                   <span className="sd-mall-detail-number">{String(index + 1).padStart(2, '0')}</span>
