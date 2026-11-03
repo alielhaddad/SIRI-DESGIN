@@ -8,7 +8,8 @@ type Project = { id: string; title: string; title_ar: string; category: string; 
 type Client = { id: string; name: string; logo_url: string; note: string; active: boolean };
 type Lead = { id: string; name: string; phone: string; email: string; service: string; budget: string; details: string; status: string; created_at: string };
 type Service = { id: string; nameEn: string; nameAr: string; descEn: string; descAr: string; imageUrl: string; tagEn: string; tagAr: string; active: boolean; sortOrder: number };
-type RetailLocation = { id: string; nameEn: string; nameAr: string; logoUrl: string; active: boolean; sortOrder: number };
+type MallProject = { id: string; nameEn: string; nameAr: string; portfolioProjectId?: string; clientId?: string; brandNameEn?: string; brandNameAr?: string; brandLogoUrl?: string; imageUrl?: string; descriptionEn?: string; descriptionAr?: string };
+type RetailLocation = { id: string; nameEn: string; nameAr: string; logoUrl: string; active: boolean; sortOrder: number; projects?: MallProject[] };
 type SiteMedia = { hero: string; logo: string; about: string };
 type Settings = { phone: string; phones: string[]; whatsapp: string; email: string; address: string; address_ar: string; location_url: string; facebook: string; instagram: string; tiktok: string; linkedin: string; about: string; about_ar: string; services?: Service[]; retail_locations?: RetailLocation[]; site_media?: Partial<SiteMedia> };
 const blankProject: Omit<Project, 'id'> = { title: '', title_ar: '', category: 'Complete Fit-Out', category_ar: '', location: '', image_url: '', description: '', description_ar: '', published: true };
@@ -23,7 +24,7 @@ const defaultServices: Service[] = [
   { id: 'consulting-project-management', nameEn: 'Consulting & Project Management', nameAr: 'الاستشارات وإدارة المشروعات', descEn: 'Project supervision, budgeting, and ISO compliance support from concept through delivery.', descAr: 'الإشراف على المشروعات وإعداد الميزانيات ودعم التوافق مع معايير ISO من بداية الفكرة حتى التسليم.', imageUrl: '/projects/fitout-lighting-progress.webp', tagEn: 'PROJECT MANAGEMENT', tagAr: 'إدارة المشروعات', active: true, sortOrder: 5 },
 ];
 const blankService: Service = { id: '', nameEn: '', nameAr: '', descEn: '', descAr: '', imageUrl: '', tagEn: 'SERVICE', tagAr: 'خدمة', active: true, sortOrder: 1 };
-const blankLocation: RetailLocation = { id: '', nameEn: '', nameAr: '', logoUrl: '', active: true, sortOrder: 1 };
+const blankLocation: RetailLocation = { id: '', nameEn: '', nameAr: '', logoUrl: '', active: true, sortOrder: 1, projects: [] };
 const defaultRetailLocations: RetailLocation[] = [
   { id: 'downtown', nameEn: 'Downtown', nameAr: 'داون تاون', logoUrl: '', active: true, sortOrder: 1 },
   { id: 'city-stars', nameEn: 'City Stars', nameAr: 'سيتي ستارز', logoUrl: '', active: true, sortOrder: 2 },
@@ -105,14 +106,15 @@ export default function Admin() {
     if (authError) setError('Unable to sign in. Check your email address and password.');
   }
 
-  async function uploadImage(e: ChangeEvent<HTMLInputElement>, target: 'project' | 'client' | 'service' | 'location' | 'hero' | 'logo' | 'about') {
+  async function uploadImage(e: ChangeEvent<HTMLInputElement>, target: 'project' | 'client' | 'service' | 'location' | 'mallProject' | 'mallBrand' | 'hero' | 'logo' | 'about', mallProjectId?: string) {
     if (!supabase || !e.target.files?.[0]) return;
     const file = e.target.files[0];
     if (!file.type.startsWith('image/')) { setError('Please choose an image file.'); return; }
     if (file.size > 6 * 1024 * 1024) { setError('The image must be 6 MB or smaller.'); return; }
     setSaving(true); setError(''); setNotice('Uploading image...');
     const extension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-    const path = `${target}/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`;
+    const storageFolder = target === 'mallProject' ? 'location' : target === 'mallBrand' ? 'client' : target;
+    const path = `${storageFolder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`;
     const { error: uploadError } = await supabase.storage.from('portfolio').upload(path, file, { cacheControl: '3600', upsert: false });
     if (uploadError) setError('Image upload failed. Make sure the portfolio storage bucket and its policies are configured in Supabase.');
     else {
@@ -121,7 +123,9 @@ export default function Admin() {
       else if (target === 'client') setClient((old: any) => ({ ...old, logo_url: data.publicUrl }));
       else if (target === 'service') setServiceDraft((old) => ({ ...old, imageUrl: data.publicUrl }));
       else if (target === 'location') setLocationDraft((old) => ({ ...old, logoUrl: data.publicUrl }));
-      else setSiteMedia((old) => ({ ...old, [target]: data.publicUrl }));
+      else if (target === 'mallProject' && mallProjectId) setLocationDraft((old) => ({ ...old, projects: (old.projects || []).map((item) => item.id === mallProjectId ? { ...item, imageUrl: data.publicUrl } : item) }));
+      else if (target === 'mallBrand' && mallProjectId) setLocationDraft((old) => ({ ...old, projects: (old.projects || []).map((item) => item.id === mallProjectId ? { ...item, brandLogoUrl: data.publicUrl } : item) }));
+      else if (target === 'hero' || target === 'logo' || target === 'about') setSiteMedia((old) => ({ ...old, [target]: data.publicUrl }));
       setNotice('Image uploaded. Save the related content to publish it on the website.');
     }
     setSaving(false); e.target.value = '';
@@ -226,6 +230,42 @@ export default function Admin() {
     else setNotice('Website images saved successfully.');
   }
 
+  function addMallProject() {
+    setLocationDraft((old) => ({ ...old, projects: [...(old.projects || []), { id: `mall-project-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, nameEn: '', nameAr: '', portfolioProjectId: '', clientId: '', brandNameEn: '', brandNameAr: '', brandLogoUrl: '', imageUrl: '', descriptionEn: '', descriptionAr: '' }] }));
+  }
+
+  function updateMallProject<K extends keyof MallProject>(id: string, key: K, value: MallProject[K]) {
+    setLocationDraft((old) => ({ ...old, projects: (old.projects || []).map((item) => item.id === id ? { ...item, [key]: value } : item) }));
+  }
+
+  function selectMallPortfolioProject(mallProjectId: string, projectId: string) {
+    const selected = projects.find((item) => item.id === projectId);
+    setLocationDraft((old) => ({ ...old, projects: (old.projects || []).map((item) => item.id === mallProjectId ? {
+      ...item,
+      portfolioProjectId: projectId,
+      nameEn: selected ? (selected.title || item.nameEn) : item.nameEn,
+      nameAr: selected ? (selected.title_ar || item.nameAr) : item.nameAr,
+      imageUrl: selected?.image_url || item.imageUrl || '',
+      descriptionEn: selected?.description || item.descriptionEn || '',
+      descriptionAr: selected?.description_ar || item.descriptionAr || '',
+    } : item) }));
+  }
+
+  function selectMallClient(mallProjectId: string, clientId: string) {
+    const selected = clients.find((item) => item.id === clientId);
+    setLocationDraft((old) => ({ ...old, projects: (old.projects || []).map((item) => item.id === mallProjectId ? {
+      ...item,
+      clientId,
+      brandNameEn: selected?.name || (clientId ? item.brandNameEn : ''),
+      brandNameAr: clientId ? (item.brandNameAr || '') : '',
+      brandLogoUrl: selected?.logo_url || (clientId ? item.brandLogoUrl || '' : ''),
+    } : item) }));
+  }
+
+  function removeMallProject(id: string) {
+    setLocationDraft((old) => ({ ...old, projects: (old.projects || []).filter((item) => item.id !== id) }));
+  }
+
   function saveLocationDraft(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const clean: RetailLocation = {
@@ -235,6 +275,7 @@ export default function Admin() {
       nameAr: locationDraft.nameAr.trim(),
       logoUrl: normalizeImagePath(locationDraft.logoUrl),
       sortOrder: Number(locationDraft.sortOrder) || retailLocations.length + 1,
+      projects: (locationDraft.projects || []).map((item) => ({ ...item, id: item.id || `mall-project-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, nameEn: String(item.nameEn || '').trim(), nameAr: String(item.nameAr || '').trim(), brandNameEn: String(item.brandNameEn || '').trim(), brandNameAr: String(item.brandNameAr || '').trim(), brandLogoUrl: normalizeImagePath(item.brandLogoUrl || ''), imageUrl: normalizeImagePath(item.imageUrl || ''), descriptionEn: String(item.descriptionEn || '').trim(), descriptionAr: String(item.descriptionAr || '').trim() })).filter((item) => item.nameEn || item.nameAr || item.portfolioProjectId || item.brandNameEn || item.brandNameAr),
     };
     if (!clean.nameEn || !clean.nameAr) { setError('Please enter the location name in both English and Arabic.'); return; }
     setRetailLocations((old) => {
@@ -242,19 +283,19 @@ export default function Admin() {
       return (exists ? old.map((item) => item.id === clean.id ? clean : item) : [...old, clean]).sort((a, b) => a.sortOrder - b.sortOrder);
     });
     setLocationDraft({ ...blankLocation, sortOrder: retailLocations.length + 2 });
-    setNotice('Retail location added to the changes list. Click Save Retail Locations to publish it.');
+    setNotice('Mall and project names added to the changes list. Click Save Mall Projects to publish them.');
   }
 
   function editLocation(item: RetailLocation) {
-    setLocationDraft({ ...item });
+    setLocationDraft({ ...item, projects: (item.projects || []).map((project) => ({ ...project })) });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function removeLocation(id: string) {
-    if (!window.confirm('Remove this retail location from the website?')) return;
+    if (!window.confirm('Remove this shopping mall from the website?')) return;
     setRetailLocations((old) => old.filter((item) => item.id !== id));
     if (locationDraft.id === id) setLocationDraft(blankLocation);
-    setNotice('Retail location removed from the changes list. Click Save Retail Locations to publish it.');
+    setNotice('Mall removed from the changes list. Click Save Mall Projects to publish the change.');
   }
 
   async function saveRetailLocations() {
@@ -263,8 +304,8 @@ export default function Admin() {
     const value = { ...settings, services, retail_locations: retailLocations, site_media: siteMedia };
     const { error: saveError } = await supabase.from('site_settings').upsert({ id: 'main', value });
     setSaving(false);
-    if (saveError) setError(`Could not save retail locations: ${saveError.message}`);
-    else { setSettings(value); setNotice('Retail locations saved successfully. They are now updated on the website.'); }
+    if (saveError) setError(`Could not save mall projects: ${saveError.message}`);
+    else { setSettings(value); setNotice('Mall projects saved successfully. They are now updated on the website.'); }
   }
 
   function displayService(value: string) {
@@ -364,7 +405,7 @@ export default function Admin() {
     {error && <p className="form-error">{error}</p>}<button className="button primary submit" disabled={!supabase}>Sign In ↗</button>
   </form></main>;
 
-  const tabs = [ ['requests', 'Customer Requests', leads.filter(x => x.status === 'new').length], ['projects', 'Portfolio', projects.length], ['services', 'Services', services.length], ['locations', 'Retail Locations', retailLocations.length], ['media', 'Website Images', 0], ['clients', 'Clients', clients.length], ['settings', 'Company Settings', 0] ] as const;
+  const tabs = [ ['requests', 'Customer Requests', leads.filter(x => x.status === 'new').length], ['projects', 'Portfolio', projects.length], ['services', 'Services', services.length], ['locations', 'Mall Projects', retailLocations.length], ['media', 'Website Images', 0], ['clients', 'Clients', clients.length], ['settings', 'Company Settings', 0] ] as const;
   return <main className="dashboard"><aside className="sidebar"><a href="/" className="dash-brand"><Image src="/logo.png" alt="" width={62} height={55}/><span>SIRI <em>DESIGNS</em><small>ADMIN DASHBOARD</small></span></a>
     {tabs.map(([key, label, count]) => <button key={key} className={tab === key ? 'active' : ''} onClick={() => { setTab(key); setNotice(''); setError(''); }}>{label}{count > 0 && <b>{count}</b>}</button>)}
     <div className="sidebar-bottom"><a href="/">← View Website</a><button onClick={() => supabase?.auth.signOut()}>Sign Out</button></div>
@@ -395,16 +436,35 @@ export default function Admin() {
       <small className="field-help">Changes remain in this editor until you click Save Services.</small>
     </form></div><div className="dash-panel"><div className="panel-head"><h2>Services ({services.length})</h2><button type="button" onClick={() => void saveServices()} disabled={saving}>{saving ? 'Saving...' : 'Save Services'}</button></div>{!services.length ? <p className="empty-admin">No services. Add your first service.</p> : [...services].sort((a,b)=>a.sortOrder-b.sortOrder).map(item => <div className="project-admin-row" key={item.id}>{item.imageUrl && <img src={item.imageUrl} alt=""/>}<div><b>{item.nameEn}</b><small dir="rtl">{item.nameAr}</small><small>{item.active ? 'Visible on website' : 'Hidden from website'} · Order {item.sortOrder}</small></div><button type="button" onClick={() => editService(item)}>Edit</button><button type="button" className="danger" onClick={() => removeService(item.id)}>Delete</button></div>)}</div></div>}
 
-    {tab === 'locations' && <div className="dash-two"><div className="dash-panel"><div className="panel-head"><h2>{locationDraft.id ? 'Edit Retail Location' : 'Add Retail Location'}</h2><button type="button" onClick={() => setLocationDraft({ ...blankLocation, sortOrder: retailLocations.length + 1 })}>+ New</button></div><form className="dash-form" onSubmit={saveLocationDraft}>
-      <label>Location Name (English) *<input required value={locationDraft.nameEn} onChange={e => setLocationDraft(old => ({ ...old, nameEn: e.target.value }))}/></label>
-      <label>Location Name (Arabic) *<input required dir="rtl" value={locationDraft.nameAr} onChange={e => setLocationDraft(old => ({ ...old, nameAr: e.target.value }))}/></label>
-      <label>Location Logo<input type="file" accept="image/*" onChange={e => void uploadImage(e, 'location')}/><small className="field-help">Upload a mall or retail destination logo. Maximum size: 6 MB.</small></label>
-      {locationDraft.logoUrl && <img className="upload-preview client-preview" src={normalizeImagePath(locationDraft.logoUrl)} alt="Retail location logo preview"/>}
+    {tab === 'locations' && <div className="dash-two"><div className="dash-panel"><div className="panel-head"><h2>{locationDraft.id ? 'Edit Shopping Mall' : 'Add Shopping Mall'}</h2><button type="button" onClick={() => setLocationDraft({ ...blankLocation, sortOrder: retailLocations.length + 1, projects: [] })}>+ New</button></div><form className="dash-form" onSubmit={saveLocationDraft}>
+      <label>Mall Name (English) *<input required value={locationDraft.nameEn} onChange={e => setLocationDraft(old => ({ ...old, nameEn: e.target.value }))}/></label>
+      <label>Mall Name (Arabic) *<input required dir="rtl" value={locationDraft.nameAr} onChange={e => setLocationDraft(old => ({ ...old, nameAr: e.target.value }))}/></label>
+      <label>Mall Logo<input type="file" accept="image/*" onChange={e => void uploadImage(e, 'location')}/><small className="field-help">Upload a shopping mall logo. Maximum size: 6 MB.</small></label>
+      {locationDraft.logoUrl && <img className="upload-preview client-preview" src={normalizeImagePath(locationDraft.logoUrl)} alt="Mall logo preview"/>}
       <label>Logo Path or URL<input type="text" inputMode="url" value={locationDraft.logoUrl} onChange={e => setLocationDraft(old => ({ ...old, logoUrl: e.target.value }))} placeholder="/locations/logo.webp or https://..."/></label>
+      <div className="mall-project-editor" style={{ borderTop: '1px solid var(--line)', marginTop: 8, paddingTop: 16 }}>
+        <div className="panel-head"><h3 style={{ margin: 0 }}>Projects Completed in This Mall</h3><button type="button" onClick={addMallProject}>+ Add Project</button></div>
+        {(locationDraft.projects || []).length === 0 && <p className="empty-admin">No projects added yet. Add a project and connect it to an existing portfolio item or brand.</p>}
+        {(locationDraft.projects || []).map((item, index) => <div key={item.id} className="mall-project-editor-card" style={{ padding: '16px 0', borderBottom: '1px solid var(--line)' }}>
+          <div className="panel-head"><b>Project {index + 1}</b><button type="button" className="danger" onClick={() => removeMallProject(item.id)}>Remove Project</button></div>
+          <label>Link to Existing Portfolio Project<select value={item.portfolioProjectId || ''} onChange={e => selectMallPortfolioProject(item.id, e.target.value)}><option value="">Custom project / not linked</option>{projects.map((projectItem) => <option key={projectItem.id} value={projectItem.id}>{projectItem.title}{projectItem.location ? ` — ${projectItem.location}` : ''}</option>)}</select><small className="field-help">Choose a project already managed in Portfolio to reuse its title, image, and description. You can still edit the details below.</small></label>
+          <label>Existing Brand / Client<select value={item.clientId || ''} onChange={e => selectMallClient(item.id, e.target.value)}><option value="">Custom brand / not listed</option>{clients.map((brand) => <option key={brand.id} value={brand.id}>{brand.name}</option>)}</select><small className="field-help">Select an existing brand from Clients, or type a new brand name below.</small></label>
+          <div className="settings-grid"><label>Brand Name (English)<input value={item.brandNameEn || ''} onChange={e => updateMallProject(item.id, 'brandNameEn', e.target.value)} placeholder="e.g. ALURA"/></label><label>Brand Name (Arabic)<input dir="rtl" value={item.brandNameAr || ''} onChange={e => updateMallProject(item.id, 'brandNameAr', e.target.value)} placeholder="اسم البراند"/></label></div>
+          <label>Brand Logo (optional)<input type="file" accept="image/*" onChange={e => void uploadImage(e, 'mallBrand', item.id)}/><small className="field-help">Use this for a custom brand not already listed in Clients. An existing client logo is filled automatically.</small></label>
+          {item.brandLogoUrl && <img className="upload-preview client-preview" src={normalizeImagePath(item.brandLogoUrl)} alt="Brand logo preview"/>}
+          <div className="settings-grid"><label>Project / Store Name (English)<input value={item.nameEn || ''} onChange={e => updateMallProject(item.id, 'nameEn', e.target.value)} placeholder="e.g. ALURA retail store"/></label><label>اسم المشروع / الفرع بالعربية<input dir="rtl" value={item.nameAr || ''} onChange={e => updateMallProject(item.id, 'nameAr', e.target.value)} placeholder="اسم المشروع أو الفرع"/></label></div>
+          <label>Project Image<input type="file" accept="image/*" onChange={e => void uploadImage(e, 'mallProject', item.id)}/><small className="field-help">Upload an image for this mall project. Maximum size: 6 MB. If linked to a Portfolio project, its image is used by default.</small></label>
+          {(item.imageUrl || '') && <img className="upload-preview" src={normalizeImagePath(item.imageUrl || '')} alt="Mall project preview"/>}
+          <label>Project Image Path or URL<input value={item.imageUrl || ''} onChange={e => updateMallProject(item.id, 'imageUrl', e.target.value)} placeholder="/projects/photo.webp or https://..."/></label>
+          <div className="settings-grid"><label>Project Description (English)<textarea rows={2} value={item.descriptionEn || ''} onChange={e => updateMallProject(item.id, 'descriptionEn', e.target.value)}/></label><label>وصف المشروع بالعربية<textarea rows={2} dir="rtl" value={item.descriptionAr || ''} onChange={e => updateMallProject(item.id, 'descriptionAr', e.target.value)}/></label></div>
+          {item.brandLogoUrl && <div className="field-help">Brand logo linked: <img src={item.brandLogoUrl} alt="Brand logo" style={{ width: 54, height: 42, objectFit: 'contain', verticalAlign: 'middle', marginInlineStart: 8 }}/></div>}
+        </div>)}
+        <small className="field-help">When a visitor clicks this mall's logo or name, these projects appear in a dedicated gallery. Add existing brands or any new brand.</small>
+      </div>
       <label>Display Order<input type="number" min="1" value={locationDraft.sortOrder} onChange={e => setLocationDraft(old => ({ ...old, sortOrder: Number(e.target.value) }))}/></label>
-      <label className="check-label"><input type="checkbox" checked={locationDraft.active} onChange={e => setLocationDraft(old => ({ ...old, active: e.target.checked }))}/> Show location on website</label>
-      <button className="button primary submit">{locationDraft.id ? 'Update Location in List' : 'Add Location to List'}</button><small className="field-help">Changes remain in this editor until you click Save Retail Locations.</small>
-    </form></div><div className="dash-panel"><div className="panel-head"><h2>Retail Locations ({retailLocations.length})</h2><button type="button" onClick={() => void saveRetailLocations()} disabled={saving}>{saving ? 'Saving...' : 'Save Retail Locations'}</button></div>{!retailLocations.length ? <p className="empty-admin">No retail locations have been added.</p> : [...retailLocations].sort((a,b)=>a.sortOrder-b.sortOrder).map(item => <div className="project-admin-row" key={item.id}>{item.logoUrl && <img src={item.logoUrl} alt=""/>}<div><b>{item.nameEn}</b><small dir="rtl">{item.nameAr}</small><small>{item.active ? 'Visible on website' : 'Hidden from website'} · Order {item.sortOrder}</small></div><button type="button" onClick={() => editLocation(item)}>Edit</button><button type="button" className="danger" onClick={() => removeLocation(item.id)}>Delete</button></div>)}</div></div>}
+      <label className="check-label"><input type="checkbox" checked={locationDraft.active} onChange={e => setLocationDraft(old => ({ ...old, active: e.target.checked }))}/> Show mall and its projects on website</label>
+      <button className="button primary submit">{locationDraft.id ? 'Update Mall in List' : 'Add Mall to List'}</button><small className="field-help">Changes remain in this editor until you click Save Mall Projects.</small>
+    </form></div><div className="dash-panel"><div className="panel-head"><h2>Malls ({retailLocations.length})</h2><button type="button" onClick={() => void saveRetailLocations()} disabled={saving}>{saving ? 'Saving...' : 'Save Mall Projects'}</button></div>{!retailLocations.length ? <p className="empty-admin">No shopping malls have been added.</p> : [...retailLocations].sort((a,b)=>a.sortOrder-b.sortOrder).map(item => <div className="project-admin-row" key={item.id}>{item.logoUrl && <img src={item.logoUrl} alt=""/>}<div><b>{item.nameEn}</b><small dir="rtl">{item.nameAr}</small><small>{(item.projects || []).filter(project => project.nameEn || project.nameAr || project.portfolioProjectId || project.brandNameEn || project.brandNameAr).length} project(s) · {item.active ? 'Visible on website' : 'Hidden from website'} · Order {item.sortOrder}</small>{(item.projects || []).filter(project => project.nameEn || project.nameAr || project.brandNameEn || project.brandNameAr).slice(0, 4).map(project => <small key={project.id}>— {project.brandNameEn || project.brandNameAr ? `${project.brandNameEn || project.brandNameAr}: ` : ''}{project.nameEn || project.nameAr}</small>)}</div><button type="button" onClick={() => editLocation(item)}>Edit</button><button type="button" className="danger" onClick={() => removeLocation(item.id)}>Delete</button></div>)}</div></div>}
 
     {tab === 'media' && <div className="dash-panel settings-form"><h2>Website Images</h2><p>Manage the main visual images used across the public website. Project images, client logos, and service images are managed in their own sections.</p>
       {([['hero', 'Main Hero Image', 'The large background image at the top of the homepage.'], ['about', 'About Section Image', 'The featured image displayed in the About section.'], ['logo', 'Website Logo', 'The logo displayed in the header and footer.']] as const).map(([key, label, help]) => <div key={key} className="media-admin-row" style={{ display: 'grid', gridTemplateColumns: 'minmax(180px, 260px) minmax(220px, 1fr)', gap: 18, alignItems: 'center', padding: '18px 0', borderBottom: '1px solid var(--line)' }}>
